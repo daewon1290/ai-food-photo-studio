@@ -18,10 +18,10 @@ export interface PhotoTemplate {
 
 // 모든 템플릿에 공통으로 적용되는 네거티브 프롬프트
 const COMMON_NEGATIVE_KO =
-  '저작권 있는 로고 복제 금지, 특정 브랜드 패키지 복제 금지, 손가락 왜곡, 음식 형태 붕괴, 과도한 플라스틱 질감, 비현실적인 색감, 텍스트 깨짐, 워터마크';
+  '저작권 있는 로고 복제 금지, 특정 브랜드 패키지 복제 금지, 손가락 왜곡, 음식 형태 붕괴, 과도한 플라스틱 질감, 비현실적인 색감, 이미지 안에 텍스트 없음, 캡션 없음, 레이블 없음, 로고 없음, 워터마크 없음, 한글 텍스트 없음, 가격 텍스트 없음, 메뉴명 텍스트 없음';
 
 const COMMON_NEGATIVE_EN =
-  'no copyrighted logo reproduction, no brand package replication, finger distortion, food form collapse, excessive plastic texture, unrealistic colors, broken text artifacts, watermark';
+  'no text, no captions, no labels, no logo, no watermark, no Korean text, no Chinese text, no menu text, no price text, no brand names, no written content anywhere in image, no copyrighted logo reproduction, no brand package replication, finger distortion, food form collapse, excessive plastic texture, unrealistic colors';
 
 const neg = (ko: string, en: string) => ({
   negativePromptKo: `${ko}, ${COMMON_NEGATIVE_KO}`,
@@ -40,6 +40,7 @@ export const photoTemplates: PhotoTemplate[] = [
     propsKo: '최소 소품, 음식이 중심',
     cameraAngleKo: '45도 하이앵글 또는 정면',
     colorMoodKo: '밝고 선명, 높은 채도, 먹음직스러운 색감',
+    previewImage: '/style-examples/delivery-app.png',
     promptKo:
       '밝은 단색 배경, 음식 화면 중앙 배치, 소프트박스 정면 조명, 선명하고 먹음직스러운 색감, 텍스트·로고 여백 확보, 배달앱 메뉴 대표사진 스타일, 선명한 포커스',
     promptEn:
@@ -60,6 +61,7 @@ export const photoTemplates: PhotoTemplate[] = [
     propsKo: '목재 트레이, 금속 수저, 냅킨, 작은 소스그릇',
     cameraAngleKo: '30~45도 하이앵글 또는 측면 클로즈업',
     colorMoodKo: '어둡고 드라마틱, 따뜻한 황금빛 하이라이트, 은은한 김',
+    previewImage: '/style-examples/dark-premium.png',
     promptKo:
       '딥 블랙 또는 짙은 원목 배경, 따뜻한 측면 스포트라이트, 은은한 스팀·김, 고급 도자기 접시, 파인다이닝 스타일 메뉴 사진, 하이 컨트라스트',
     promptEn:

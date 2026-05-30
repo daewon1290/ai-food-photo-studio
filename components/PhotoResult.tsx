@@ -6,6 +6,8 @@ import { PhotoTemplate } from '@/lib/photoTemplates';
 
 interface Props {
   originalImage: string;
+  /** 실제 AI 생성 이미지. 없으면 Mock 미리보기를 표시합니다. */
+  resultImage?: string;
   category: string;
   template: PhotoTemplate;
 }
@@ -19,7 +21,7 @@ const STYLE_ROWS: { label: string; key: keyof PhotoTemplate }[] = [
   { label: '색감', key: 'colorMoodKo' },
 ];
 
-export default function PhotoResult({ originalImage, category, template }: Props) {
+export default function PhotoResult({ originalImage, resultImage, category, template }: Props) {
   const [promptOpen, setPromptOpen] = useState(false);
 
   return (
@@ -32,37 +34,52 @@ export default function PhotoResult({ originalImage, category, template }: Props
             <Image src={originalImage} alt="원본" fill className="object-cover" />
           </div>
         </div>
+
         <div>
-          <p className="text-xs text-orange-500 mb-1 font-medium text-center">AI 변환 결과 (Mock)</p>
-          <div className="relative aspect-square rounded-xl overflow-hidden border-2 border-orange-200">
-            <Image
-              src={originalImage}
-              alt="변환 결과"
-              fill
-              className="object-cover opacity-90"
-              style={{ filter: 'saturate(1.3) contrast(1.1) brightness(1.05)' }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-            <div className="absolute bottom-2 left-0 right-0 text-center">
-              <span className="text-white text-xs font-bold bg-orange-500/80 px-2 py-0.5 rounded-full">
-                Mock 미리보기
-              </span>
-            </div>
-          </div>
+          {resultImage ? (
+            <>
+              <p className="text-xs text-orange-500 mb-1 font-medium text-center">AI 생성 결과</p>
+              <div className="relative aspect-square rounded-xl overflow-hidden border-2 border-orange-400">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={resultImage}
+                  alt="AI 생성 결과"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-xs text-gray-400 mb-1 font-medium text-center">AI 변환 결과 (Mock)</p>
+              <div className="relative aspect-square rounded-xl overflow-hidden border-2 border-gray-200">
+                <Image
+                  src={originalImage}
+                  alt="변환 결과 Mock"
+                  fill
+                  className="object-cover opacity-90"
+                  style={{ filter: 'saturate(1.3) contrast(1.1) brightness(1.05)' }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                <div className="absolute bottom-2 left-0 right-0 text-center">
+                  <span className="text-white text-xs font-bold bg-gray-500/70 px-2 py-0.5 rounded-full">
+                    Mock
+                  </span>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
       {/* 적용 정보 카드 */}
       <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
-        {/* 카테고리 & 템플릿 태그 */}
         <div className="flex flex-wrap gap-2">
           <Tag label="카테고리" value={category} />
-          <Tag label="템플릿" value={template.nameKo} />
+          <Tag label="스타일" value={template.nameKo} />
         </div>
 
         <hr className="border-gray-100" />
 
-        {/* 적용된 연출 요약 */}
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
           적용된 연출 요약
         </p>
@@ -104,10 +121,6 @@ export default function PhotoResult({ originalImage, category, template }: Props
             />
           </div>
         )}
-      </div>
-
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700 text-center">
-        실제 AI image API 연결 시 위 프롬프트를 사용하여 사진을 생성합니다.
       </div>
     </div>
   );

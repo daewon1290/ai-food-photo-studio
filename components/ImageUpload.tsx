@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import Image from 'next/image';
 
 interface Props {
-  onUpload: (dataUrl: string) => void;
+  onUpload: (dataUrl: string, file: File) => void;
   currentImage: string | null;
 }
 
@@ -16,7 +16,7 @@ export default function ImageUpload({ onUpload, currentImage }: Props) {
     if (!file.type.startsWith('image/')) return;
     const reader = new FileReader();
     reader.onload = (e) => {
-      if (e.target?.result) onUpload(e.target.result as string);
+      if (e.target?.result) onUpload(e.target.result as string, file);
     };
     reader.readAsDataURL(file);
   };
