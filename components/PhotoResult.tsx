@@ -90,31 +90,35 @@ export default function PhotoResult({ originalImage, resultImage, category, temp
           ))}
         </div>
 
-        <hr className="border-gray-100" />
+        {process.env.NODE_ENV === 'development' && (
+          <>
+            <hr className="border-gray-100" />
 
-        {/* 개발자용 프롬프트 accordion */}
-        <button
-          onClick={() => setPromptOpen((v) => !v)}
-          className="w-full flex items-center justify-between text-xs text-gray-400 hover:text-gray-600 py-1 transition-colors"
-        >
-          <span className="font-medium">개발자용 프롬프트 보기</span>
-          <span
-            className="text-base leading-none transition-transform duration-200"
-            style={{ transform: promptOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
-          >
-            ›
-          </span>
-        </button>
+            {/* 개발자용 프롬프트 accordion */}
+            <button
+              onClick={() => setPromptOpen((v) => !v)}
+              className="w-full flex items-center justify-between text-xs text-gray-400 hover:text-gray-600 py-1 transition-colors"
+            >
+              <span className="font-medium">개발자용 프롬프트 보기</span>
+              <span
+                className="text-base leading-none transition-transform duration-200"
+                style={{ transform: promptOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+              >
+                ›
+              </span>
+            </button>
 
-        {promptOpen && (
-          <div className="space-y-3 pt-1">
-            <PromptBlock label="Style Direction (EN)" content={buildStyleDirection(template)} />
-            <PromptBlock
-              label="Negative Prompt (EN)"
-              content={template.negativePromptEn}
-              color="red"
-            />
-          </div>
+            {promptOpen && (
+              <div className="space-y-3 pt-1">
+                <PromptBlock label="Style Direction (EN)" content={buildStyleDirection(template)} />
+                <PromptBlock
+                  label="Negative Prompt (EN)"
+                  content={template.negativePromptEn}
+                  color="red"
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
