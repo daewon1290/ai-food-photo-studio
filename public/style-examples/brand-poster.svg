@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" width="320" height="180">
+  <defs>
+    <radialGradient id="bg-bp" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#ff7043"/>
+      <stop offset="100%" stop-color="#e64a19"/>
+    </radialGradient>
+    <radialGradient id="product-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- 배경 (브랜드 코랄 컬러) -->
+  <rect width="320" height="180" fill="url(#bg-bp)"/>
+
+  <!-- 미묘한 격자 패턴 -->
+  <line x1="0" y1="60" x2="320" y2="60" stroke="white" stroke-width="0.4" stroke-opacity="0.12"/>
+  <line x1="0" y1="120" x2="320" y2="120" stroke="white" stroke-width="0.4" stroke-opacity="0.12"/>
+  <line x1="107" y1="0" x2="107" y2="180" stroke="white" stroke-width="0.4" stroke-opacity="0.12"/>
+  <line x1="213" y1="0" x2="213" y2="180" stroke="white" stroke-width="0.4" stroke-opacity="0.12"/>
+
+  <!-- 제품 글로우 -->
+  <circle cx="160" cy="85" r="72" fill="url(#product-glow)"/>
+
+  <!-- 제품 서클 (깔끔한 흰 원) -->
+  <circle cx="160" cy="85" r="60" fill="white" fill-opacity="0.92"/>
+  <circle cx="160" cy="85" r="60" fill="none" stroke="white" stroke-width="2"/>
+
+  <!-- 음식/제품 심볼 (음료컵) -->
+  <path d="M145 58 L148 118 L172 118 L175 58 Z" fill="#ff7043" fill-opacity="0.8"/>
+  <path d="M145 58 L175 58" stroke="#e64a19" stroke-width="2"/>
+  <!-- 컵 뚜껑 -->
+  <ellipse cx="160" cy="55" rx="18" ry="5" fill="#e64a19" stroke="#e64a19" stroke-width="1"/>
+  <!-- 빨대 -->
+  <rect x="163" y="34" width="4" height="30" rx="2" fill="#ff8a65"/>
+  <!-- 컵 내용물 -->
+  <path d="M147 68 L149 115 L171 115 L173 68 Z" fill="#ffccbc" fill-opacity="0.5"/>
+  <!-- 하이라이트 -->
+  <path d="M148 65 L150 100 L154 100 L152 65 Z" fill="white" fill-opacity="0.25"/>
+
+  <!-- 텍스트 여백 힌트 (좌우 바) -->
+  <rect x="8" y="38" width="95" height="6" rx="3" fill="white" fill-opacity="0.3"/>
+  <rect x="8" y="50" width="70" height="4" rx="2" fill="white" fill-opacity="0.2"/>
+
+  <rect x="217" y="38" width="95" height="6" rx="3" fill="white" fill-opacity="0.3"/>
+  <rect x="217" y="50" width="70" height="4" rx="2" fill="white" fill-opacity="0.2"/>
+
+  <!-- 하단 텍스트 여백 -->
+  <rect x="40" y="152" width="240" height="8" rx="4" fill="white" fill-opacity="0.25"/>
+  <rect x="80" y="163" width="160" height="6" rx="3" fill="white" fill-opacity="0.18"/>
+
+  <!-- 상단 "임시" 뱃지 -->
+  <rect x="8" y="8" width="30" height="14" rx="4" fill="white" fill-opacity="0.3"/>
+  <text x="23" y="18.5" text-anchor="middle" font-family="sans-serif" font-size="7" font-weight="bold" fill="white">임시</text>
+
+  <!-- 하단 레이블 바 -->
+  <rect x="0" y="152" width="320" height="28" fill="#000000" fill-opacity="0.35"/>
+  <text x="16" y="167" font-family="sans-serif" font-size="10" font-weight="bold" fill="white">브랜드 컬러 포스터형</text>
+  <text x="16" y="176" font-family="sans-serif" font-size="7.5" fill="white" fill-opacity="0.75">단색 배경 · 텍스트 여백 · 상업 광고 스타일</text>
+</svg>

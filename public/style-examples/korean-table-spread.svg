@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" width="320" height="180">
+  <defs>
+    <radialGradient id="bg-kt" cx="50%" cy="50%" r="80%">
+      <stop offset="0%" stop-color="#78350f"/>
+      <stop offset="100%" stop-color="#3b1a08"/>
+    </radialGradient>
+    <radialGradient id="table-light" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#fbbf24" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- 배경 (원목 테이블) -->
+  <rect width="320" height="180" fill="url(#bg-kt)"/>
+  <!-- 나무 결 -->
+  <line x1="0" y1="30" x2="320" y2="38" stroke="#92400e" stroke-width="1.2" stroke-opacity="0.4"/>
+  <line x1="0" y1="65" x2="320" y2="70" stroke="#92400e" stroke-width="0.8" stroke-opacity="0.3"/>
+  <line x1="0" y1="100" x2="320" y2="108" stroke="#78350f" stroke-width="1" stroke-opacity="0.35"/>
+  <line x1="0" y1="138" x2="320" y2="142" stroke="#92400e" stroke-width="0.8" stroke-opacity="0.25"/>
+
+  <!-- 조명 -->
+  <ellipse cx="160" cy="90" rx="130" ry="75" fill="url(#table-light)"/>
+
+  <!-- 메인 그릇 (중앙 큰 뚝배기) -->
+  <ellipse cx="160" cy="95" rx="42" ry="12" fill="#1c1410" stroke="#6b3a1f" stroke-width="1.5"/>
+  <path d="M118 82 Q118 95 160 95 Q202 95 202 82 L202 87 Q202 100 160 102 Q118 100 118 87 Z" fill="#2d1810" stroke="#6b3a1f" stroke-width="1"/>
+  <ellipse cx="160" cy="82" rx="42" ry="12" fill="#3d2010"/>
+  <ellipse cx="160" cy="80" rx="38" ry="10" fill="#7c3626"/>
+  <!-- 찌개 내용물 힌트 -->
+  <ellipse cx="155" cy="79" rx="20" ry="6" fill="#9d3f2e" fill-opacity="0.7"/>
+  <circle cx="148" cy="78" r="4" fill="#c0392b"/>
+  <circle cx="162" cy="80" r="3" fill="#e74c3c"/>
+  <rect x="153" y="74" width="12" height="6" rx="2" fill="#fde68a" fill-opacity="0.6"/>
+
+  <!-- 반찬 그릇들 — 왼쪽 위 -->
+  <ellipse cx="84" cy="58" rx="22" ry="8" fill="#1a0f08" stroke="#6b3a1f" stroke-width="1"/>
+  <path d="M62 52 Q62 58 84 58 Q106 58 106 52 L106 54 Q106 62 84 63 Q62 62 62 54 Z" fill="#251510"/>
+  <ellipse cx="84" cy="52" rx="22" ry="8" fill="#2d6a2d"/>
+  <ellipse cx="84" cy="51" rx="18" ry="6" fill="#3d7a3d" fill-opacity="0.8"/>
+
+  <!-- 오른쪽 위 반찬 -->
+  <ellipse cx="236" cy="55" rx="20" ry="7" fill="#1a0f08" stroke="#6b3a1f" stroke-width="1"/>
+  <path d="M216 49 Q216 55 236 55 Q256 55 256 49 L256 51 Q256 59 236 60 Q216 59 216 51 Z" fill="#251510"/>
+  <ellipse cx="236" cy="49" rx="20" ry="7" fill="#8b1a1a"/>
+  <ellipse cx="236" cy="48" rx="16" ry="5" fill="#a52020" fill-opacity="0.8"/>
+
+  <!-- 왼쪽 아래 반찬 -->
+  <ellipse cx="76" cy="128" rx="20" ry="7" fill="#1a0f08" stroke="#6b3a1f" stroke-width="1"/>
+  <path d="M56 122 Q56 128 76 128 Q96 128 96 122 L96 124 Q96 132 76 133 Q56 132 56 124 Z" fill="#251510"/>
+  <ellipse cx="76" cy="122" rx="20" ry="7" fill="#1a4a6b"/>
+  <ellipse cx="76" cy="121" rx="16" ry="5" fill="#1e5a80" fill-opacity="0.7"/>
+
+  <!-- 오른쪽 아래 반찬 -->
+  <ellipse cx="244" cy="125" rx="20" ry="7" fill="#1a0f08" stroke="#6b3a1f" stroke-width="1"/>
+  <path d="M224 119 Q224 125 244 125 Q264 125 264 119 L264 121 Q264 129 244 130 Q224 129 224 121 Z" fill="#251510"/>
+  <ellipse cx="244" cy="119" rx="20" ry="7" fill="#4a3800"/>
+  <ellipse cx="244" cy="118" rx="16" ry="5" fill="#6b5000" fill-opacity="0.7"/>
+
+  <!-- 수저 -->
+  <line x1="292" y1="55" x2="298" y2="140" stroke="#c0c0c0" stroke-width="2" stroke-linecap="round" stroke-opacity="0.7"/>
+  <ellipse cx="295" cy="50" rx="5" ry="8" fill="none" stroke="#c0c0c0" stroke-width="1.5" stroke-opacity="0.6"/>
+  <line x1="284" y1="55" x2="284" y2="140" stroke="#a0a0a0" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.6"/>
+
+  <!-- 상단 "임시" 뱃지 -->
+  <rect x="8" y="8" width="30" height="14" rx="4" fill="#d97706" fill-opacity="0.85"/>
+  <text x="23" y="18.5" text-anchor="middle" font-family="sans-serif" font-size="7" font-weight="bold" fill="white">임시</text>
+
+  <!-- 하단 레이블 바 -->
+  <rect x="0" y="152" width="320" height="28" fill="#000000" fill-opacity="0.65"/>
+  <text x="16" y="167" font-family="sans-serif" font-size="10" font-weight="bold" fill="#fbbf24">한상차림 풍성형</text>
+  <text x="16" y="176" font-family="sans-serif" font-size="7.5" fill="#fcd34d" fill-opacity="0.7">메인 뚝배기 + 반찬 · 탑뷰 · 원목 테이블</text>
+</svg>
