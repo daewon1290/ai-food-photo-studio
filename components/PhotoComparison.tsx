@@ -4,9 +4,15 @@ interface Props {
   generatedImages: string[];
   selectedIndex: number | null;
   onSelect: (index: number) => void;
+  variantLabels?: [string, string];
 }
 
-export default function PhotoComparison({ generatedImages, selectedIndex, onSelect }: Props) {
+export default function PhotoComparison({
+  generatedImages,
+  selectedIndex,
+  onSelect,
+  variantLabels,
+}: Props) {
   return (
     <div className="space-y-3">
       <p className="text-sm text-gray-600">
@@ -16,6 +22,8 @@ export default function PhotoComparison({ generatedImages, selectedIndex, onSele
       <div className="grid grid-cols-2 gap-3">
         {generatedImages.map((src, i) => {
           const isSelected = selectedIndex === i;
+          const variantName = variantLabels?.[i] ?? `옵션 ${i + 1}`;
+
           return (
             <button
               key={i}
@@ -31,37 +39,43 @@ export default function PhotoComparison({ generatedImages, selectedIndex, onSele
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={src}
-                alt={`생성된 사진 ${i + 1}`}
+                alt={`생성된 사진 ${i + 1}: ${variantName}`}
                 className="w-full aspect-square object-cover"
               />
 
               {/* 선택 오버레이 */}
               {isSelected && (
-                <div className="absolute inset-0 bg-orange-500/10 flex items-center justify-center">
+                <div className="absolute inset-0 bg-orange-500/10" />
+              )}
+
+              {/* 번호 + variant 이름 뱃지 */}
+              <div className="absolute top-2 left-2 right-2">
+                <span
+                  className={`inline-block text-xs font-bold px-2 py-0.5 rounded-full max-w-full truncate ${
+                    isSelected ? 'bg-orange-500 text-white' : 'bg-black/50 text-white'
+                  }`}
+                >
+                  {i + 1}번 — {variantName}
+                </span>
+              </div>
+
+              {/* 선택됨 체크 */}
+              {isSelected && (
+                <div className="absolute bottom-2 left-0 right-0 flex justify-center">
                   <span className="bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow">
                     선택됨 ✓
                   </span>
                 </div>
               )}
-
-              {/* 번호 뱃지 */}
-              <div className="absolute top-2 left-2">
-                <span
-                  className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                    isSelected ? 'bg-orange-500 text-white' : 'bg-black/40 text-white'
-                  }`}
-                >
-                  {i + 1}번
-                </span>
-              </div>
             </button>
           );
         })}
       </div>
 
+      {/* 선택 후 안내 */}
       {selectedIndex !== null && (
         <p className="text-xs text-center text-orange-600 font-medium">
-          {selectedIndex + 1}번 사진이 선택되었습니다. 아래에서 다운로드하세요.
+          {selectedIndex + 1}번 — {variantLabels?.[selectedIndex] ?? `옵션 ${selectedIndex + 1}`} 선택됨. 아래에서 다운로드하세요.
         </p>
       )}
     </div>

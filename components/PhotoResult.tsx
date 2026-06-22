@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { PhotoTemplate } from '@/lib/photoTemplates';
+import { buildStyleDirection } from '@/lib/buildPrompt';
 
 interface Props {
   originalImage: string;
@@ -107,13 +108,7 @@ export default function PhotoResult({ originalImage, resultImage, category, temp
 
         {promptOpen && (
           <div className="space-y-3 pt-1">
-            <PromptBlock label="이미지 생성 프롬프트 (한글)" content={template.promptKo} />
-            <PromptBlock label="Image Prompt (EN)" content={template.promptEn} />
-            <PromptBlock
-              label="네거티브 프롬프트 (한글)"
-              content={template.negativePromptKo}
-              color="red"
-            />
+            <PromptBlock label="Style Direction (EN)" content={buildStyleDirection(template)} />
             <PromptBlock
               label="Negative Prompt (EN)"
               content={template.negativePromptEn}
