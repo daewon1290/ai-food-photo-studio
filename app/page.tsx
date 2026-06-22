@@ -358,6 +358,7 @@ export default function Home() {
                   </button>
 
                   {/* 개발 전용: 생성 방식 + 모델 오버라이드 */}
+                  {process.env.NODE_ENV === 'development' && (
                   <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
                     <div className="flex items-center gap-1.5">
                       <span className="text-xs text-gray-400">🧪 방식:</span>
@@ -391,6 +392,7 @@ export default function Home() {
                       </div>
                     )}
                   </div>
+                  )}
                 </>
               )}
             </SectionBlock>
@@ -461,7 +463,7 @@ export default function Home() {
         )}
 
         {/* ── 개발 전용: Photoroom 합성 테스트 ── */}
-        {uploadedImage && (
+        {process.env.NODE_ENV === 'development' && uploadedImage && (
           <div className="border border-dashed border-indigo-200 rounded-xl p-4 space-y-4 bg-white">
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-gray-500">🧪 Photoroom 합성 테스트</span>
@@ -575,7 +577,7 @@ export default function Home() {
         )}
 
         {/* ── 개발 전용: Photoroom 배경 제거 테스트 ── */}
-        {uploadedImage && (
+        {process.env.NODE_ENV === 'development' && uploadedImage && (
           <div className="border border-dashed border-gray-300 rounded-xl p-4 space-y-4 bg-white">
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-gray-500">🧪 Photoroom 배경 제거 테스트</span>
@@ -637,7 +639,7 @@ export default function Home() {
         )}
 
         {/* ── 개발 전용: AI 배경 + Photoroom 합성 테스트 ── */}
-        {uploadedImage && (
+        {process.env.NODE_ENV === 'development' && uploadedImage && (
           <div className="border border-dashed border-emerald-200 rounded-xl p-4 space-y-4 bg-white">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm font-bold text-gray-500">🧪 AI 배경 + Photoroom 합성 테스트</span>
