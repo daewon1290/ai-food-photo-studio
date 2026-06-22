@@ -530,7 +530,7 @@ export default function Home() {
         )}
 
         {/* ── 개발 전용: Photoroom 합성 테스트 ── */}
-        {process.env.NODE_ENV === 'development' && uploadedImage && (
+        {process.env.NEXT_PUBLIC_SHOW_DEV_TOOLS === 'true' && uploadedImage && (
           <div className="border border-dashed border-indigo-200 rounded-xl p-4 space-y-4 bg-white">
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-gray-500">🧪 Photoroom 합성 테스트</span>
@@ -644,7 +644,7 @@ export default function Home() {
         )}
 
         {/* ── 개발 전용: Photoroom 배경 제거 테스트 ── */}
-        {process.env.NODE_ENV === 'development' && uploadedImage && (
+        {process.env.NEXT_PUBLIC_SHOW_DEV_TOOLS === 'true' && uploadedImage && (
           <div className="border border-dashed border-gray-300 rounded-xl p-4 space-y-4 bg-white">
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-gray-500">🧪 Photoroom 배경 제거 테스트</span>
@@ -706,7 +706,7 @@ export default function Home() {
         )}
 
         {/* ── 개발 전용: AI 배경 + Photoroom 합성 테스트 ── */}
-        {process.env.NODE_ENV === 'development' && uploadedImage && (
+        {process.env.NEXT_PUBLIC_SHOW_DEV_TOOLS === 'true' && uploadedImage && (
           <div className="border border-dashed border-emerald-200 rounded-xl p-4 space-y-4 bg-white">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm font-bold text-gray-500">🧪 AI 배경 + Photoroom 합성 테스트</span>
