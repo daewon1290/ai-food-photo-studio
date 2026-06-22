@@ -447,7 +447,7 @@ export default function Home() {
 
             <a
               href={selectedImage}
-              download="menu-photo.png"
+              download={buildDownloadFilename(selectedTemplate.id, selectedImage)}
               className="mt-4 w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-4 rounded-xl font-bold text-base transition-colors"
             >
               ↓ PNG 다운로드
@@ -790,6 +790,19 @@ export default function Home() {
       </div>
     </main>
   );
+}
+
+function buildDownloadFilename(templateId: string, imageUrl: string): string {
+  const ext = imageUrl.startsWith('data:image/jpeg') ? 'jpg' : 'png';
+  const now = new Date();
+  const date =
+    now.getFullYear().toString() +
+    String(now.getMonth() + 1).padStart(2, '0') +
+    String(now.getDate()).padStart(2, '0');
+  const time =
+    String(now.getHours()).padStart(2, '0') +
+    String(now.getMinutes()).padStart(2, '0');
+  return `ai-food-photo-${templateId}-${date}-${time}.${ext}`;
 }
 
 /* ── 2가지 시안 안내 카드 (delivery-hero 외 스타일용) ─────────────── */
