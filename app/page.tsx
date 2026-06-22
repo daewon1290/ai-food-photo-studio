@@ -31,6 +31,7 @@ export default function Home() {
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [generateError, setGenerateError] = useState<string | null>(null);
+  const [isCancelled, setIsCancelled] = useState(false);
   // 개발 전용: 생성 방식 선택 (기본 = 기본 생성)
   type GenerateMode = 'normal' | 'mask' | 'composite';
   const [generateMode, setGenerateMode] = useState<GenerateMode>('normal');
@@ -76,6 +77,8 @@ export default function Home() {
   // const [selectedTone, setSelectedTone] = useState<CaptionTone | null>(null);
   // const [captions, setCaptions] = useState<CaptionResult | null>(null);
 
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   // ── 섹션 스크롤 ref ───────────────────────────────────────────────
   const templateRef = useRef<HTMLElement>(null);
   const resultRef = useRef<HTMLElement>(null);
@@ -91,6 +94,7 @@ export default function Home() {
     setGeneratedImages([]);
     setSelectedImageIndex(null);
     setGenerateError(null);
+    setIsCancelled(false);
   };
 
   // ── 핸들러 ───────────────────────────────────────────────────────
@@ -122,7 +126,11 @@ export default function Home() {
     setGeneratedImages([]);
     setSelectedImageIndex(null);
     setGenerateError(null);
+    setIsCancelled(false);
     scrollTo(resultRef);
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
     try {
       // 배달앱 대표사진형만 사용자 선택 강도 적용, 나머지는 원본 보존 우선값 고정
@@ -173,7 +181,7 @@ export default function Home() {
       // reference image가 있는 템플릿 + 기본 생성 모드일 때만 첨부
       if (generateMode === 'normal' && selectedTemplate.referenceImagePath) {
         try {
-          const refRes = await fetch(selectedTemplate.referenceImagePath);
+          const refRes = await fetch(selectedTemplate.referenceImagePath, { signal: controller.signal });
           if (refRes.ok) {
             const refBlob = await refRes.blob();
             formData.append('referenceImage', new File([refBlob], 'reference.png', { type: 'image/png' }));
@@ -186,6 +194,7 @@ export default function Home() {
       const res = await fetch(endpoint, {
         method: 'POST',
         body: formData,
+        signal: controller.signal,
       });
 
       const data: { images?: string[]; error?: string } = await res.json();
@@ -196,11 +205,20 @@ export default function Home() {
       }
 
       setGeneratedImages(data.images);
-    } catch {
-      setGenerateError('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        setIsCancelled(true);
+      } else {
+        setGenerateError('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+      }
     } finally {
       setIsGenerating(false);
+      abortControllerRef.current = null;
     }
+  };
+
+  const handleCancel = () => {
+    abortControllerRef.current?.abort();
   };
 
   const handleSelectImage = (index: number) => {
@@ -403,6 +421,12 @@ export default function Home() {
         {isGenerating && (
           <SectionBlock sectionRef={resultRef} step="3" title="AI 사진 생성 중">
             <GeneratingView />
+            <button
+              onClick={handleCancel}
+              className="mt-4 w-full py-3 border border-gray-300 rounded-xl text-sm text-gray-500 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+            >
+              취소
+            </button>
           </SectionBlock>
         )}
 
@@ -412,6 +436,16 @@ export default function Home() {
             <p className="text-sm text-red-700 font-medium">생성 실패</p>
             <p className="text-xs text-red-600">{generateError}</p>
             <button onClick={handleGenerate} className="text-xs text-red-600 underline">
+              다시 시도하기
+            </button>
+          </div>
+        )}
+
+        {/* ── 취소 ── */}
+        {isCancelled && !isGenerating && (
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 flex items-center justify-between">
+            <p className="text-sm text-gray-500">생성이 취소되었습니다.</p>
+            <button onClick={handleGenerate} className="text-xs text-orange-500 font-medium underline">
               다시 시도하기
             </button>
           </div>
