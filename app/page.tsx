@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { Fragment, useRef, useState } from 'react';
 import Image from 'next/image';
 import { PhotoTemplate } from '@/lib/photoTemplates';
 import { buildGenerationPrompt, buildPreservePrompt, buildCompositePrompt } from '@/lib/buildPrompt';
@@ -307,6 +307,12 @@ export default function Home() {
   // ── 파생 상태 ─────────────────────────────────────────────────────
   const isLanding = !showWorkspace && !uploadedImage;
   const hasGeneratedImages = generatedImages.length > 0;
+  const workspaceStep: number =
+    !uploadedImage ? 1 :
+    !selectedTemplate ? 2 :
+    !isGenerating && !hasGeneratedImages ? 3 :
+    isGenerating && !hasGeneratedImages ? 4 :
+    5;
   const selectedImage =
     selectedImageIndex !== null ? generatedImages[selectedImageIndex] : null;
   const phase1Done = selectedImage !== null;
@@ -343,9 +349,12 @@ export default function Home() {
 
         {/* ── 1. 사진 업로드 ── */}
         {!isLanding && (
-          <SectionBlock step="1" title="음식 사진 업로드">
-            <ImageUpload onUpload={handleImageUpload} currentImage={uploadedImage} />
-          </SectionBlock>
+          <>
+            <WorkspaceSteps currentStep={workspaceStep} />
+            <SectionBlock step="1" title="음식 사진 업로드">
+              <ImageUpload onUpload={handleImageUpload} currentImage={uploadedImage} />
+            </SectionBlock>
+          </>
         )}
 
         {uploadedImage && (
@@ -847,6 +856,55 @@ export default function Home() {
 
       </div>
     </main>
+  );
+}
+
+/* ── 워크스페이스 단계 안내 ───────────────────────────────────────── */
+
+const WORKSPACE_STEPS = [
+  { id: 1, label: '사진 업로드' },
+  { id: 2, label: '스타일 선택' },
+  { id: 3, label: '보존 강도 선택' },
+  { id: 4, label: '이미지 생성' },
+  { id: 5, label: '결과 확인' },
+] as const;
+
+function WorkspaceSteps({ currentStep }: { currentStep: number }) {
+  const total = WORKSPACE_STEPS.length;
+  const currentLabel = WORKSPACE_STEPS.find((s) => s.id === currentStep)?.label ?? '';
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-100 px-4 py-3 shadow-sm space-y-2">
+      {/* 진행 바 */}
+      <div className="flex items-center">
+        {WORKSPACE_STEPS.map((step, i) => {
+          const done = currentStep > step.id;
+          const active = currentStep === step.id;
+          return (
+            <Fragment key={step.id}>
+              {i > 0 && (
+                <div className={`flex-1 h-0.5 ${done ? 'bg-orange-400' : 'bg-gray-200'}`} />
+              )}
+              <div
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 transition-colors ${
+                  done
+                    ? 'bg-orange-500 text-white'
+                    : active
+                    ? 'bg-orange-500 text-white ring-2 ring-orange-200'
+                    : 'bg-gray-100 text-gray-400'
+                }`}
+              >
+                {done ? '✓' : step.id}
+              </div>
+            </Fragment>
+          );
+        })}
+      </div>
+      {/* 현재 단계 레이블 */}
+      <p className="text-xs font-semibold text-orange-500">
+        {currentStep}단계 / {total} — {currentLabel}
+      </p>
+    </div>
   );
 }
 
