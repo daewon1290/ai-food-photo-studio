@@ -315,29 +315,16 @@ export default function Home() {
     5;
   const selectedImage =
     selectedImageIndex !== null ? generatedImages[selectedImageIndex] : null;
-  const phase1Done = selectedImage !== null;
-
   // ── 렌더 ─────────────────────────────────────────────────────────
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-[#FFF9F5]">
       {/* ── 헤더 ── */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-2xl mx-auto px-4 py-3">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-2xl">🍽️</span>
-            <div>
-              <h1 className="text-base font-bold text-gray-900 leading-tight">
-                AI 음식사진 스튜디오
-              </h1>
-              <p className="text-xs text-gray-400">자영업자를 위한 전문 메뉴 사진 제작</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5 text-xs">
-            <StepChip active={!!uploadedImage} done={phase1Done} label="1단계: 사진 생성" />
-            <span className="text-gray-300">›</span>
-            <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-300 font-medium">
-              2단계: 사용처 (준비 중)
-            </span>
+      <header className="bg-white border-b border-orange-100 sticky top-0 z-10 shadow-sm">
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
+          <span className="text-xl shrink-0">🍽️</span>
+          <div>
+            <h1 className="text-sm font-bold text-gray-900 leading-tight">AI 음식사진 스튜디오</h1>
+            <p className="text-xs text-orange-400 leading-tight font-medium">대충 찍어도 광고사진처럼</p>
           </div>
         </div>
       </header>
@@ -388,7 +375,7 @@ export default function Home() {
                 <>
                   <button
                     onClick={handleGenerate}
-                    className="mt-4 w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-4 rounded-xl font-bold text-base transition-colors"
+                    className="mt-4 w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-4 rounded-2xl font-bold text-base transition-colors shadow-sm"
                   >
                     ✨ AI 사진 2장 생성하기
                   </button>
@@ -441,7 +428,7 @@ export default function Home() {
             <GeneratingView />
             <button
               onClick={handleCancel}
-              className="mt-4 w-full py-3 border border-gray-300 rounded-xl text-sm text-gray-500 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+              className="mt-4 w-full py-3 border border-gray-200 rounded-2xl text-sm text-gray-500 hover:bg-gray-50 active:bg-gray-100 transition-colors"
             >
               취소
             </button>
@@ -494,7 +481,7 @@ export default function Home() {
             {!isGenerating && (
               <button
                 onClick={handleGenerate}
-                className="mt-3 w-full py-3 border border-gray-300 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                className="mt-3 w-full py-3 border border-gray-200 rounded-2xl text-sm text-gray-600 hover:bg-gray-50 transition-colors"
               >
                 ↺ 다시 생성하기
               </button>
@@ -515,17 +502,11 @@ export default function Home() {
             <a
               href={selectedImage}
               download={buildDownloadFilename(selectedTemplate.id, selectedImage)}
-              className="mt-4 w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-4 rounded-xl font-bold text-base transition-colors"
+              className="mt-4 w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-4 rounded-2xl font-bold text-base transition-colors shadow-sm"
             >
               ↓ PNG 다운로드
             </a>
 
-            {/* 2차 기능 안내 */}
-            <div className="mt-3 bg-gray-50 border border-dashed border-gray-200 rounded-xl p-4 text-center">
-              <p className="text-xs text-gray-400">
-                사용처별 최적화 크기 변환 · 추천 문구 생성은 2차 기능으로 준비 중입니다.
-              </p>
-            </div>
           </SectionBlock>
         )}
 
@@ -981,7 +962,7 @@ function HeroSection({ onStart }: { onStart: () => void }) {
       {/* 시작하기 버튼 */}
       <button
         onClick={onStart}
-        className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-4 rounded-xl font-bold text-base transition-colors"
+        className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-4 rounded-2xl font-bold text-base transition-colors shadow-sm"
       >
         시작하기 →
       </button>
@@ -1114,21 +1095,6 @@ function GeneratingView() {
 }
 
 /* ── 공통 UI 컴포넌트 ─────────────────────────────────────────────── */
-
-function StepChip({
-  active,
-  done,
-  label,
-}: {
-  active: boolean;
-  done: boolean;
-  label: string;
-}) {
-  const base = 'px-2 py-1 rounded-full transition-colors whitespace-nowrap font-medium';
-  if (done) return <span className={`${base} bg-green-500 text-white`}>{label} ✓</span>;
-  if (active) return <span className={`${base} bg-orange-500 text-white`}>{label}</span>;
-  return <span className={`${base} bg-gray-100 text-gray-400`}>{label}</span>;
-}
 
 function SectionBlock({
   sectionRef,
