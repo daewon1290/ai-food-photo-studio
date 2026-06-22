@@ -123,7 +123,6 @@ export default function Home() {
     if (!uploadedFile || !selectedTemplate) return;
 
     setIsGenerating(true);
-    setGeneratedImages([]);
     setSelectedImageIndex(null);
     setGenerateError(null);
     setIsCancelled(false);
@@ -417,8 +416,8 @@ export default function Home() {
           </>
         )}
 
-        {/* ── 3. 생성 중 로딩 ── */}
-        {isGenerating && (
+        {/* ── 3. 생성 중 로딩 (첫 생성 — 이전 결과 없음) ── */}
+        {isGenerating && !hasGeneratedImages && (
           <SectionBlock sectionRef={resultRef} step="3" title="AI 사진 생성 중">
             <GeneratingView />
             <button
@@ -451,21 +450,36 @@ export default function Home() {
           </div>
         )}
 
-        {/* ── 3. 사진 2장 비교·선택 ── */}
-        {hasGeneratedImages && !isGenerating && (
+        {/* ── 3. 사진 2장 비교·선택 (재생성 중에도 이전 결과 유지) ── */}
+        {hasGeneratedImages && (
           <SectionBlock sectionRef={resultRef} step="3" title="마음에 드는 사진 선택">
-            <PhotoComparison
-              generatedImages={generatedImages}
-              selectedIndex={selectedImageIndex}
-              onSelect={handleSelectImage}
-              variantLabels={selectedTemplate?.variantLabels}
-            />
-            <button
-              onClick={handleGenerate}
-              className="mt-3 w-full py-3 border border-gray-300 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition-colors"
-            >
-              ↺ 다시 생성하기
-            </button>
+            {isGenerating && (
+              <div className="mb-3 flex items-center justify-between bg-orange-50 border border-orange-200 rounded-xl px-4 py-3">
+                <span className="text-sm text-orange-600">새 이미지를 생성 중입니다…</span>
+                <button
+                  onClick={handleCancel}
+                  className="text-xs text-gray-500 underline"
+                >
+                  취소
+                </button>
+              </div>
+            )}
+            <div className={isGenerating ? 'opacity-40 pointer-events-none' : ''}>
+              <PhotoComparison
+                generatedImages={generatedImages}
+                selectedIndex={selectedImageIndex}
+                onSelect={handleSelectImage}
+                variantLabels={selectedTemplate?.variantLabels}
+              />
+            </div>
+            {!isGenerating && (
+              <button
+                onClick={handleGenerate}
+                className="mt-3 w-full py-3 border border-gray-300 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+              >
+                ↺ 다시 생성하기
+              </button>
+            )}
           </SectionBlock>
         )}
 
