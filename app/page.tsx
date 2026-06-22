@@ -27,6 +27,9 @@ export default function Home() {
   const [selectedTemplate, setSelectedTemplate] = useState<PhotoTemplate | null>(null);
   const [selectedPreservation, setSelectedPreservation] = useState<PreservationMode>(DEFAULT_PRESERVATION);
 
+  // 랜딩 → 워크스페이스 전환
+  const [showWorkspace, setShowWorkspace] = useState(false);
+
   // 생성 상태
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
@@ -302,6 +305,7 @@ export default function Home() {
   };
 
   // ── 파생 상태 ─────────────────────────────────────────────────────
+  const isLanding = !showWorkspace && !uploadedImage;
   const hasGeneratedImages = generatedImages.length > 0;
   const selectedImage =
     selectedImageIndex !== null ? generatedImages[selectedImageIndex] : null;
@@ -334,13 +338,15 @@ export default function Home() {
 
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-5 pb-20">
 
-        {/* ── 소개 (업로드 전에만 표시) ── */}
-        {!uploadedImage && <HeroSection />}
+        {/* ── 소개 (랜딩 상태에서만 표시) ── */}
+        {isLanding && <HeroSection onStart={() => setShowWorkspace(true)} />}
 
         {/* ── 1. 사진 업로드 ── */}
-        <SectionBlock step="1" title="음식 사진 업로드">
-          <ImageUpload onUpload={handleImageUpload} currentImage={uploadedImage} />
-        </SectionBlock>
+        {!isLanding && (
+          <SectionBlock step="1" title="음식 사진 업로드">
+            <ImageUpload onUpload={handleImageUpload} currentImage={uploadedImage} />
+          </SectionBlock>
+        )}
 
         {uploadedImage && (
           <>
@@ -869,7 +875,7 @@ const ONBOARDING_STEPS = [
   },
 ] as const;
 
-function HeroSection() {
+function HeroSection({ onStart }: { onStart: () => void }) {
   return (
     <div className="space-y-6 pt-2">
       {/* 메인 카피 */}
@@ -913,6 +919,14 @@ function HeroSection() {
           </div>
         ))}
       </div>
+
+      {/* 시작하기 버튼 */}
+      <button
+        onClick={onStart}
+        className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-4 rounded-xl font-bold text-base transition-colors"
+      >
+        시작하기 →
+      </button>
     </div>
   );
 }
