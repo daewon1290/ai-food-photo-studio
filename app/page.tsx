@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import Image from 'next/image';
 import { PhotoTemplate } from '@/lib/photoTemplates';
 import { buildGenerationPrompt, buildPreservePrompt, buildCompositePrompt } from '@/lib/buildPrompt';
 import { PreservationMode, DEFAULT_PRESERVATION } from '@/lib/preservationModes';
@@ -332,6 +333,9 @@ export default function Home() {
       </header>
 
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-5 pb-20">
+
+        {/* ── 소개 (업로드 전에만 표시) ── */}
+        {!uploadedImage && <HeroSection />}
 
         {/* ── 1. 사진 업로드 ── */}
         <SectionBlock step="1" title="음식 사진 업로드">
@@ -837,6 +841,79 @@ export default function Home() {
 
       </div>
     </main>
+  );
+}
+
+/* ── 온보딩 소개 ─────────────────────────────────────────────────── */
+
+const ONBOARDING_STEPS = [
+  {
+    image: '/onboarding/onboarding-upload.png',
+    title: '먼저 사진을 올려요',
+    desc: '가게에서 찍은 평범한 음식 사진도 괜찮아요.',
+  },
+  {
+    image: '/onboarding/onboarding-template.png',
+    title: '원하는 분위기를 골라요',
+    desc: '배달앱 대표사진, 매운 불맛, 카페 음료, 고급 레스토랑 느낌까지 선택할 수 있어요.',
+  },
+  {
+    image: '/onboarding/onboarding-preserve.png',
+    title: '음식 정체성은 지켜요',
+    desc: '햄버거는 햄버거답게, 치킨은 치킨답게 유지하면서 조명과 분위기를 개선해요.',
+  },
+  {
+    image: '/onboarding/onboarding-download.png',
+    title: '결과를 저장해요',
+    desc: '완성된 이미지는 배달앱, 스마트플레이스, SNS 홍보에 바로 활용할 수 있어요.',
+  },
+] as const;
+
+function HeroSection() {
+  return (
+    <div className="space-y-6 pt-2">
+      {/* 메인 카피 */}
+      <div className="text-center space-y-3">
+        <h2 className="text-2xl font-bold text-gray-900 leading-tight">
+          AI 음식 사진 스튜디오
+        </h2>
+        <p className="text-lg font-semibold text-orange-500">
+          대충 찍은 음식 사진도 광고사진처럼.
+        </p>
+        <p className="text-sm text-gray-500 leading-relaxed">
+          음식 사진을 올리고 원하는 스타일을 고르면,{' '}
+          AI가 음식의 정체성은 유지하면서{' '}
+          배달앱·스마트플레이스·SNS에 어울리는 이미지로 바꿔줍니다.
+        </p>
+      </div>
+
+      {/* 온보딩 4컷 카드 */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {ONBOARDING_STEPS.map((step, i) => (
+          <div
+            key={step.image}
+            className="bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm"
+          >
+            <div className="relative aspect-video">
+              <Image
+                src={step.image}
+                alt={step.title}
+                fill
+                className="object-cover"
+                sizes="(min-width: 640px) 50vw, 100vw"
+              />
+            </div>
+            <div className="px-4 py-3">
+              <p className="text-xs font-bold text-orange-400 mb-0.5">
+                {String(i + 1).padStart(2, '0')}
+              </p>
+              <h3 className="text-sm font-bold text-gray-800">{step.title}</h3>
+              <p className="text-xs text-gray-500 mt-1 leading-relaxed">{step.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
