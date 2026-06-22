@@ -888,7 +888,7 @@ function HeroSection() {
       </div>
 
       {/* 온보딩 4컷 카드 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         {ONBOARDING_STEPS.map((step, i) => (
           <div
             key={step.image}
@@ -900,15 +900,15 @@ function HeroSection() {
                 alt={step.title}
                 fill
                 className="object-cover"
-                sizes="(min-width: 640px) 50vw, 100vw"
+                sizes="50vw"
               />
             </div>
-            <div className="px-4 py-3">
+            <div className="px-3 py-2 sm:px-4 sm:py-3">
               <p className="text-xs font-bold text-orange-400 mb-0.5">
                 {String(i + 1).padStart(2, '0')}
               </p>
               <h3 className="text-sm font-bold text-gray-800">{step.title}</h3>
-              <p className="text-xs text-gray-500 mt-1 leading-relaxed">{step.desc}</p>
+              <p className="hidden sm:block text-xs text-gray-500 mt-1 leading-relaxed">{step.desc}</p>
             </div>
           </div>
         ))}
