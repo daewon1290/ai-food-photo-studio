@@ -6,6 +6,7 @@ import { PhotoTemplate } from '@/lib/photoTemplates';
 import { buildGenerationPrompt, buildPreservePrompt, buildCompositePrompt } from '@/lib/buildPrompt';
 import { PreservationMode, DEFAULT_PRESERVATION } from '@/lib/preservationModes';
 import ImageUpload from '@/components/ImageUpload';
+import PosterMode from '@/components/PosterMode';
 import CategorySelect from '@/components/CategorySelect';
 import TemplateSelect from '@/components/TemplateSelect';
 import PreservationSelect from '@/components/PreservationSelect';
@@ -27,8 +28,10 @@ export default function Home() {
   const [selectedTemplate, setSelectedTemplate] = useState<PhotoTemplate | null>(null);
   const [selectedPreservation, setSelectedPreservation] = useState<PreservationMode>(DEFAULT_PRESERVATION);
 
-  // 랜딩 → 워크스페이스 전환
-  const [showWorkspace, setShowWorkspace] = useState(false);
+  // 앱 모드 전환
+  type AppMode = 'landing' | 'ai-studio' | 'poster';
+  const [appMode, setAppMode] = useState<AppMode>('landing');
+  const [posterBaseImage, setPosterBaseImage] = useState<string | null>(null);
 
   // 생성 상태
   const [isGenerating, setIsGenerating] = useState(false);
@@ -308,7 +311,7 @@ export default function Home() {
   };
 
   // ── 파생 상태 ─────────────────────────────────────────────────────
-  const isLanding = !showWorkspace && !uploadedImage;
+  const isLanding = appMode === 'landing';
   const hasGeneratedImages = generatedImages.length > 0;
   const workspaceStep: number =
     !uploadedImage ? 1 :
@@ -335,10 +338,23 @@ export default function Home() {
       <div className={`max-w-2xl mx-auto px-4 py-6 space-y-5 ${selectedImage ? 'pb-32 sm:pb-20' : 'pb-20'}`}>
 
         {/* ── 소개 (랜딩 상태에서만 표시) ── */}
-        {isLanding && <HeroSection onStart={() => setShowWorkspace(true)} />}
+        {isLanding && (
+          <HeroSection
+            onStartAI={() => setAppMode('ai-studio')}
+            onStartPoster={() => setAppMode('poster')}
+          />
+        )}
+
+        {/* ── 포스터 모드 ── */}
+        {appMode === 'poster' && (
+          <PosterMode
+            initialImage={posterBaseImage ?? undefined}
+            onBack={() => { setAppMode('landing'); setPosterBaseImage(null); }}
+          />
+        )}
 
         {/* ── 1. 사진 업로드 ── */}
-        {!isLanding && (
+        {appMode === 'ai-studio' && (
           <>
             <WorkspaceSteps currentStep={workspaceStep} />
             <SectionBlock step="1" title="음식 사진 업로드">
@@ -347,7 +363,7 @@ export default function Home() {
           </>
         )}
 
-        {uploadedImage && (
+        {appMode === 'ai-studio' && uploadedImage && (
           <>
             {/* ── 2. 음식 종류 선택 ── */}
             <SectionBlock sectionRef={categoryRef} step="2" title="음식 종류 선택">
@@ -435,7 +451,7 @@ export default function Home() {
         )}
 
         {/* ── 4. 생성 중 로딩 (첫 생성 — 이전 결과 없음) ── */}
-        {isGenerating && !hasGeneratedImages && (
+        {appMode === 'ai-studio' && isGenerating && !hasGeneratedImages && (
           <SectionBlock sectionRef={resultRef} step="4" title="AI 사진 생성 중">
             <GeneratingView />
             <button
@@ -448,7 +464,7 @@ export default function Home() {
         )}
 
         {/* ── 에러 ── */}
-        {generateError && !isGenerating && (
+        {appMode === 'ai-studio' && generateError && !isGenerating && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-3">
             <p className="text-sm text-red-700 font-medium">생성 실패</p>
             <p className="text-xs text-red-600">{generateError}</p>
@@ -459,7 +475,7 @@ export default function Home() {
         )}
 
         {/* ── 취소 ── */}
-        {isCancelled && !isGenerating && (
+        {appMode === 'ai-studio' && isCancelled && !isGenerating && (
           <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 flex items-center justify-between">
             <p className="text-sm text-gray-500">생성이 취소되었습니다.</p>
             <button onClick={handleGenerate} className="text-xs text-orange-500 font-medium underline">
@@ -469,7 +485,7 @@ export default function Home() {
         )}
 
         {/* ── 4. 사진 2장 비교·선택 (재생성 중에도 이전 결과 유지) ── */}
-        {hasGeneratedImages && (
+        {appMode === 'ai-studio' && hasGeneratedImages && (
           <SectionBlock sectionRef={resultRef} step="4" title="마음에 드는 사진 선택">
             {isGenerating && (
               <div className="mb-3 flex items-center justify-between bg-orange-50 border border-orange-200 rounded-xl px-4 py-3">
@@ -502,7 +518,7 @@ export default function Home() {
         )}
 
         {/* ── 5. 선택 결과 확인 + PNG 다운로드 ── */}
-        {selectedImage && selectedTemplate && (
+        {appMode === 'ai-studio' && selectedImage && selectedTemplate && (
           <SectionBlock sectionRef={downloadRef} step="5" title="생성 완료">
             <PhotoResult
               originalImage={uploadedImage!}
@@ -518,6 +534,17 @@ export default function Home() {
             >
               ↓ PNG 다운로드
             </a>
+
+            <button
+              onClick={() => {
+                setPosterBaseImage(selectedImage);
+                setAppMode('poster');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="mt-3 w-full py-3 border border-gray-200 rounded-2xl text-sm text-gray-600 hover:bg-orange-50 hover:border-orange-300 hover:text-orange-600 transition-colors"
+            >
+              ✏️ 이 사진으로 홍보 포스터 만들기
+            </button>
 
           </SectionBlock>
         )}
@@ -850,7 +877,7 @@ export default function Home() {
       </div>
 
       {/* ── 모바일 스티키 다운로드 바 ── */}
-      {selectedImage && selectedTemplate && (
+      {appMode === 'ai-studio' && selectedImage && selectedTemplate && (
         <div className="sm:hidden fixed bottom-0 left-0 right-0 z-20">
           <div className="bg-white/95 backdrop-blur-sm border-t border-gray-100 shadow-[0_-4px_16px_rgba(0,0,0,0.10)] px-4 py-3">
             <a
@@ -941,62 +968,76 @@ const ONBOARDING_STEPS = [
   },
 ] as const;
 
-function HeroSection({ onStart }: { onStart: () => void }) {
+function HeroSection({
+  onStartAI,
+  onStartPoster,
+}: {
+  onStartAI: () => void;
+  onStartPoster: () => void;
+}) {
   return (
     <div className="space-y-5 pt-2">
-      {/* 메인 카피 + CTA — fold 안에 */}
-      <div className="text-center space-y-4">
-        <div className="space-y-2">
-          <h2 className="text-2xl font-bold text-gray-900 leading-tight">
-            AI 음식 사진 스튜디오
-          </h2>
-          <p className="text-lg font-semibold text-orange-500">
-            대충 찍은 음식 사진도 광고사진처럼.
-          </p>
-          <p className="text-sm text-gray-400">
-            스타일 고르면 AI가 30초 안에 바꿔드려요.
-          </p>
-        </div>
-        <button
-          onClick={onStart}
-          className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-4 rounded-2xl font-bold text-base transition-colors shadow-sm"
-        >
-          📸 지금 시작하기 →
-        </button>
+      {/* 메인 카피 */}
+      <div className="text-center space-y-1">
+        <h2 className="text-2xl font-bold text-gray-900 leading-tight">AI 음식사진 스튜디오</h2>
+        <p className="text-sm text-gray-400">무엇을 만들까요?</p>
       </div>
 
-      {/* 구분선 */}
-      <div className="flex items-center gap-3">
-        <div className="flex-1 h-px bg-gray-100" />
-        <span className="text-xs text-gray-300 shrink-0">이렇게 작동해요</span>
-        <div className="flex-1 h-px bg-gray-100" />
-      </div>
+      {/* 기능 선택 카드 2장 */}
+      <div className="space-y-3">
 
-      {/* 온보딩 4컷 카드 */}
-      <div className="grid grid-cols-2 gap-3">
-        {ONBOARDING_STEPS.map((step, i) => (
-          <div
-            key={step.image}
-            className="bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm"
-          >
-            <div className="relative aspect-video">
-              <Image
-                src={step.image}
-                alt={step.title}
-                fill
-                className="object-cover"
-                sizes="50vw"
-              />
-            </div>
-            <div className="px-3 py-2 sm:px-4 sm:py-3">
-              <p className="text-xs font-bold text-orange-400 mb-0.5">
-                {String(i + 1).padStart(2, '0')}
-              </p>
-              <h3 className="text-sm font-bold text-gray-800">{step.title}</h3>
-              <p className="hidden sm:block text-xs text-gray-500 mt-1 leading-relaxed">{step.desc}</p>
-            </div>
+        {/* 카드 1: AI 음식 사진 만들기 */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="grid grid-cols-2">
+            {[ONBOARDING_STEPS[0], ONBOARDING_STEPS[3]].map((step) => (
+              <div key={step.image} className="relative aspect-video bg-gray-100">
+                <Image src={step.image} alt={step.title} fill className="object-cover" sizes="50vw" />
+              </div>
+            ))}
           </div>
-        ))}
+          <div className="px-4 py-4 space-y-3">
+            <div>
+              <h3 className="font-bold text-gray-900">📸 AI 음식 사진 만들기</h3>
+              <p className="text-sm text-gray-500 mt-0.5 leading-snug">
+                평범한 음식 사진을 광고 사진처럼 바꿔드려요.
+                스타일만 고르면 AI가 30초 안에 완성해요.
+              </p>
+            </div>
+            <button
+              onClick={onStartAI}
+              className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-3 rounded-xl font-bold text-sm transition-colors"
+            >
+              시작하기 →
+            </button>
+          </div>
+        </div>
+
+        {/* 카드 2: 홍보 포스터 만들기 */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="grid grid-cols-2">
+            {['/poster-examples/poster-burger-ingredients.png', '/poster-examples/poster-kimchi-humor.png'].map((src) => (
+              <div key={src} className="relative aspect-video bg-gray-100">
+                <Image src={src} alt="홍보 포스터 예시" fill className="object-cover" sizes="50vw" />
+              </div>
+            ))}
+          </div>
+          <div className="px-4 py-4 space-y-3">
+            <div>
+              <h3 className="font-bold text-gray-900">✏️ 홍보 포스터 만들기</h3>
+              <p className="text-sm text-gray-500 mt-0.5 leading-snug">
+                이미 있는 음식 사진에 메뉴명·가격·홍보 문구를 얹어
+                인스타·당근·스마트플레이스용 포스터를 만들어요.
+              </p>
+            </div>
+            <button
+              onClick={onStartPoster}
+              className="w-full bg-white border-2 border-orange-500 text-orange-600 hover:bg-orange-50 active:bg-orange-100 py-3 rounded-xl font-bold text-sm transition-colors"
+            >
+              시작하기 →
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
   );
