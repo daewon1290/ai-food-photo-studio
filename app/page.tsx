@@ -986,61 +986,24 @@ function HeroSection({
 
       {/* ══════════════════════════════════════
           섹션 1: AI 음식 사진 만들기
-          (상단 대표 이미지 + 설명 + 4컷 흐름이
-           하나의 큰 흰색 섹션으로 연결됨)
+          (제목 + 설명 + 4컷 흐름 + CTA)
       ══════════════════════════════════════ */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
 
-        {/* 대표 이미지: 업로드 원본 ↔ AI 변환 결과 나란히 */}
-        <div className="grid grid-cols-2 h-44">
-          <div className="relative overflow-hidden">
-            <Image
-              src={ONBOARDING_STEPS[0].image}
-              alt="음식 사진 업로드"
-              fill
-              className="object-cover"
-              sizes="50vw"
-            />
-          </div>
-          <div className="relative overflow-hidden">
-            <Image
-              src={ONBOARDING_STEPS[3].image}
-              alt="AI 변환 결과"
-              fill
-              className="object-cover"
-              sizes="50vw"
-            />
-          </div>
-        </div>
-
-        {/* 제목 + 설명 + CTA */}
-        <div className="px-4 pt-4 pb-5">
+        {/* 제목 + 설명 */}
+        <div className="px-4 pt-4 pb-4">
           <div className="flex items-center justify-between mb-1.5">
             <h3 className="font-bold text-gray-900 text-base">📸 AI 음식 사진 만들기</h3>
             <span className="text-xs bg-orange-100 text-orange-600 font-semibold px-2 py-0.5 rounded-full">AI</span>
           </div>
-          <p className="text-sm text-gray-500 leading-snug mb-4">
-            평범한 음식 사진을 광고 사진처럼 바꿔드려요. 스타일만 고르면 AI가 완성해요.
+          <p className="text-sm text-gray-500 leading-snug">
+            평범한 음식 사진을 광고 사진처럼 바꿔드려요.
+            사진을 올리고 원하는 분위기만 고르면 AI가 완성해요.
           </p>
-          <button
-            onClick={onStartAI}
-            className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-3 rounded-xl font-bold text-sm transition-colors"
-          >
-            시작하기 →
-          </button>
         </div>
 
-        {/* 구분선 + 소제목: 4컷이 위 기능의 설명임을 연결 */}
-        <div className="px-4">
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-gray-100" />
-            <span className="text-xs text-gray-400 font-medium shrink-0">AI 사진은 이렇게 바뀌어요</span>
-            <div className="flex-1 h-px bg-gray-100" />
-          </div>
-        </div>
-
-        {/* 4컷 온보딩 — 섹션 내부에 연결된 흐름으로 배치 */}
-        <div className="px-4 pt-3 pb-5">
+        {/* 4컷 온보딩 */}
+        <div className="px-4 pb-4">
           <div className="grid grid-cols-2 gap-3">
             {ONBOARDING_STEPS.map((step, i) => (
               <div
@@ -1065,6 +1028,16 @@ function HeroSection({
               </div>
             ))}
           </div>
+        </div>
+
+        {/* CTA */}
+        <div className="px-4 pb-5">
+          <button
+            onClick={onStartAI}
+            className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-3 rounded-xl font-bold text-sm transition-colors"
+          >
+            음식사진 만들기 시작 →
+          </button>
         </div>
 
       </div>
