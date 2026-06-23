@@ -1060,11 +1060,11 @@ function HeroSection({
           </p>
         </div>
 
-        {/* Before → After 비교 (세로 배치, 동일 크기) */}
-        <div className="px-4 space-y-2">
+        {/* Before(중간 크기) → After(full width 결과물) */}
+        <div className="px-4 space-y-3">
 
-          {/* Before */}
-          <div className="relative rounded-xl overflow-hidden">
+          {/* Before: 카드 너비의 약 60% — 아이콘이 아닌 실제 사진으로 인식 가능한 크기 */}
+          <div className="relative w-[60%] rounded-xl overflow-hidden shadow-sm">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/poster-examples/onboarding-before.png"
@@ -1072,17 +1072,19 @@ function HeroSection({
               className="w-full h-auto block"
             />
             <span className="absolute top-2 left-2 bg-black/55 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-              Before
+              입력 사진
             </span>
           </div>
 
-          {/* 화살표 */}
-          <div className="flex items-center justify-center py-0.5">
-            <span className="text-orange-400 text-2xl font-bold leading-none">↓</span>
+          {/* 변환 화살표 */}
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-px bg-amber-200/60" />
+            <span className="text-xs text-orange-400 font-bold px-1">↓ AI 변환</span>
+            <div className="flex-1 h-px bg-amber-200/60" />
           </div>
 
-          {/* After: 메인 포스터 (크게) */}
-          <div className="relative rounded-xl overflow-hidden bg-white/40">
+          {/* After: 완성 포스터 (full width, 메인 결과물) */}
+          <div className="relative rounded-xl overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/poster-examples/poster-burger-ingredients.png"
@@ -1091,11 +1093,11 @@ function HeroSection({
               style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.10))' }}
             />
             <span className="absolute top-2 left-2 bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-              After
+              AI 포스터 완성
             </span>
           </div>
 
-          {/* 보조 예시: 김치찌개 포스터 (작게, 시선 분산 최소화) */}
+          {/* 보조 예시: 김치찌개 포스터 */}
           <div className="flex items-center gap-3 pt-1 pb-1">
             <p className="text-[11px] text-amber-600 font-medium shrink-0">다른 포스터 예시</p>
             <div className="flex-1 h-px bg-amber-200/70" />
