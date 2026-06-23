@@ -329,7 +329,7 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-5 pb-20">
+      <div className={`max-w-2xl mx-auto px-4 py-6 space-y-5 ${selectedImage ? 'pb-32 sm:pb-20' : 'pb-20'}`}>
 
         {/* ── 소개 (랜딩 상태에서만 표시) ── */}
         {isLanding && <HeroSection onStart={() => setShowWorkspace(true)} />}
@@ -502,7 +502,7 @@ export default function Home() {
             <a
               href={selectedImage}
               download={buildDownloadFilename(selectedTemplate.id, selectedImage)}
-              className="mt-4 w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-4 rounded-2xl font-bold text-base transition-colors shadow-sm"
+              className="mt-4 hidden sm:flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-4 rounded-2xl font-bold text-base transition-colors shadow-sm"
             >
               ↓ PNG 다운로드
             </a>
@@ -836,6 +836,21 @@ export default function Home() {
         )}
 
       </div>
+
+      {/* ── 모바일 스티키 다운로드 바 ── */}
+      {selectedImage && selectedTemplate && (
+        <div className="sm:hidden fixed bottom-0 left-0 right-0 z-20">
+          <div className="bg-white/95 backdrop-blur-sm border-t border-gray-100 shadow-[0_-4px_16px_rgba(0,0,0,0.10)] px-4 py-3">
+            <a
+              href={selectedImage}
+              download={buildDownloadFilename(selectedTemplate.id, selectedImage)}
+              className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-3.5 rounded-2xl font-bold text-sm transition-colors"
+            >
+              ↓ AI 사진 저장하기
+            </a>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
@@ -916,20 +931,33 @@ const ONBOARDING_STEPS = [
 
 function HeroSection({ onStart }: { onStart: () => void }) {
   return (
-    <div className="space-y-6 pt-2">
-      {/* 메인 카피 */}
-      <div className="text-center space-y-3">
-        <h2 className="text-2xl font-bold text-gray-900 leading-tight">
-          AI 음식 사진 스튜디오
-        </h2>
-        <p className="text-lg font-semibold text-orange-500">
-          대충 찍은 음식 사진도 광고사진처럼.
-        </p>
-        <p className="text-sm text-gray-500 leading-relaxed">
-          음식 사진을 올리고 원하는 스타일을 고르면,{' '}
-          AI가 음식의 정체성은 유지하면서{' '}
-          배달앱·스마트플레이스·SNS에 어울리는 이미지로 바꿔줍니다.
-        </p>
+    <div className="space-y-5 pt-2">
+      {/* 메인 카피 + CTA — fold 안에 */}
+      <div className="text-center space-y-4">
+        <div className="space-y-2">
+          <h2 className="text-2xl font-bold text-gray-900 leading-tight">
+            AI 음식 사진 스튜디오
+          </h2>
+          <p className="text-lg font-semibold text-orange-500">
+            대충 찍은 음식 사진도 광고사진처럼.
+          </p>
+          <p className="text-sm text-gray-400">
+            스타일 고르면 AI가 30초 안에 바꿔드려요.
+          </p>
+        </div>
+        <button
+          onClick={onStart}
+          className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-4 rounded-2xl font-bold text-base transition-colors shadow-sm"
+        >
+          📸 지금 시작하기 →
+        </button>
+      </div>
+
+      {/* 구분선 */}
+      <div className="flex items-center gap-3">
+        <div className="flex-1 h-px bg-gray-100" />
+        <span className="text-xs text-gray-300 shrink-0">이렇게 작동해요</span>
+        <div className="flex-1 h-px bg-gray-100" />
       </div>
 
       {/* 온보딩 4컷 카드 */}
@@ -958,14 +986,6 @@ function HeroSection({ onStart }: { onStart: () => void }) {
           </div>
         ))}
       </div>
-
-      {/* 시작하기 버튼 */}
-      <button
-        onClick={onStart}
-        className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-4 rounded-2xl font-bold text-base transition-colors shadow-sm"
-      >
-        시작하기 →
-      </button>
     </div>
   );
 }

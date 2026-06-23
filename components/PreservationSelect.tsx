@@ -11,7 +11,7 @@ interface Props {
 export default function PreservationSelect({ selected, onSelect }: Props) {
   return (
     <div className="space-y-2">
-      <p className="text-sm font-semibold text-gray-700">메뉴 유지 강도</p>
+      <p className="text-sm font-semibold text-gray-700">음식을 얼마나 바꿀까요?</p>
 
       {/* ── 모바일: 1열 리스트 ── */}
       <div className="sm:hidden space-y-2">

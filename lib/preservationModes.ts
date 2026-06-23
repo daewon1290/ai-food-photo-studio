@@ -24,8 +24,8 @@ export const DEFAULT_PRESERVATION: PreservationMode = 'strict';
 export const preservationOptions: PreservationOption[] = [
   {
     id: 'strict',
-    labelKo: '실제 메뉴 그대로',
-    descriptionKo: '음식은 원본 그대로 — 조명·색만 정리',
+    labelKo: '원본 그대로',
+    descriptionKo: '음식 모습 그대로 유지 — 조명·색감만 정리해요',
     previewImage: '/preservation-examples/strict.png',
     promptEn:
       'Reproduce the food exactly as photographed — same shape, amount, piece count, arrangement, color, and texture. ' +
@@ -35,7 +35,7 @@ export const preservationOptions: PreservationOption[] = [
   {
     id: 'natural',
     labelKo: '자연스럽게 보정',
-    descriptionKo: '음식 정체성 유지, 색감·윤기 자연 보정',
+    descriptionKo: '음식 모양은 유지하면서 색감과 윤기를 자연스럽게 살려요',
     previewImage: '/preservation-examples/natural.png',
     promptEn:
       'Keep the same menu identity and all visible food elements. ' +
@@ -45,8 +45,8 @@ export const preservationOptions: PreservationOption[] = [
   },
   {
     id: 'abundant',
-    labelKo: '먹음직스럽게 강조',
-    descriptionKo: '형태는 유지, 윤기·볼륨감을 광고 수준으로 강조',
+    labelKo: '광고 느낌으로 강화',
+    descriptionKo: '형태는 그대로, 윤기와 볼륨감을 광고 수준으로 끌어올려요',
     previewImage: '/preservation-examples/abundant.png',
     promptEn:
       'Keep the menu identity, piece count, and overall arrangement of the original food. ' +
