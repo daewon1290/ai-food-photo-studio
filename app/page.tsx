@@ -84,6 +84,7 @@ export default function Home() {
   const abortControllerRef = useRef<AbortController | null>(null);
 
   // ── 섹션 스크롤 ref ───────────────────────────────────────────────
+  const categoryRef = useRef<HTMLElement>(null);
   const templateRef = useRef<HTMLElement>(null);
   const resultRef = useRef<HTMLElement>(null);
   const downloadRef = useRef<HTMLElement>(null);
@@ -110,12 +111,11 @@ export default function Home() {
     setSelectedTemplate(null);
     setSelectedPreservation(DEFAULT_PRESERVATION);
     resetGeneration();
-    scrollTo(templateRef); // 업로드 후 바로 스타일 선택으로 이동
+    scrollTo(categoryRef); // 업로드 후 음식 종류 선택으로 이동
   };
 
-  // 선택사항 — 같은 항목 재클릭 시 해제, 생성 상태는 유지
   const handleCategorySelect = (category: string) => {
-    setSelectedCategory((prev) => (prev === category ? null : category));
+    setSelectedCategory(category);
   };
 
   const handleTemplateSelect = (template: PhotoTemplate) => {
@@ -161,15 +161,18 @@ export default function Home() {
         endpoint = effectiveModel === 'flux' ? '/api/generate-flux' : '/api/generate-photo';
       }
 
+      // "잘 모르겠어요" 선택 시 프롬프트에 카테고리 힌트를 넘기지 않음
+      const categoryForPrompt = selectedCategory === '잘 모르겠어요' ? null : selectedCategory;
+
       const promptA = buildPrompt({
-        category: selectedCategory,
+        category: categoryForPrompt,
         template: selectedTemplate,
         preservation: effectivePreservation,
         variantIndex: 0,
         model: effectiveModel,
       });
       const promptB = buildPrompt({
-        category: selectedCategory,
+        category: categoryForPrompt,
         template: selectedTemplate,
         preservation: effectivePreservation,
         variantIndex: 1,
@@ -309,7 +312,7 @@ export default function Home() {
   const hasGeneratedImages = generatedImages.length > 0;
   const workspaceStep: number =
     !uploadedImage ? 1 :
-    !selectedTemplate ? 2 :
+    !selectedCategory ? 2 :
     !isGenerating && !hasGeneratedImages ? 3 :
     isGenerating && !hasGeneratedImages ? 4 :
     5;
@@ -346,14 +349,17 @@ export default function Home() {
 
         {uploadedImage && (
           <>
-            {/* ── 선택사항: 카테고리 (접기/펼치기) ── */}
-            <CollapsibleCategorySection
-              selected={selectedCategory}
-              onSelect={handleCategorySelect}
-            />
+            {/* ── 2. 음식 종류 선택 ── */}
+            <SectionBlock sectionRef={categoryRef} step="2" title="음식 종류 선택">
+              <p className="text-sm text-gray-500 leading-relaxed mb-3">
+                AI가 음식을 잘못 바꾸지 않도록 가장 가까운 종류를 골라주세요.
+                애매하면 &quot;잘 모르겠어요&quot;를 선택해도 됩니다.
+              </p>
+              <CategorySelect selected={selectedCategory} onSelect={handleCategorySelect} />
+            </SectionBlock>
 
-            {/* ── 2. 사진 스타일 선택 ── */}
-            <SectionBlock sectionRef={templateRef} step="2" title="사진 스타일 선택">
+            {/* ── 3. 사진 스타일 선택 ── */}
+            <SectionBlock sectionRef={templateRef} step="3" title="사진 스타일 선택">
               <TemplateSelect selected={selectedTemplate} onSelect={handleTemplateSelect} />
 
               {selectedTemplate && (
@@ -373,15 +379,21 @@ export default function Home() {
 
               {selectedTemplate && !isGenerating && !hasGeneratedImages && (
                 <>
-                  <button
-                    onClick={handleGenerate}
-                    className="mt-4 w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-4 rounded-2xl font-bold text-base transition-colors shadow-sm"
-                  >
-                    ✨ AI 사진 2장 생성하기
-                  </button>
+                  {selectedCategory ? (
+                    <button
+                      onClick={handleGenerate}
+                      className="mt-4 w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-4 rounded-2xl font-bold text-base transition-colors shadow-sm"
+                    >
+                      ✨ AI 사진 2장 생성하기
+                    </button>
+                  ) : (
+                    <div className="mt-4 bg-orange-50 border border-orange-200 rounded-xl p-4 text-center">
+                      <p className="text-sm text-orange-600 font-medium">위 2단계에서 음식 종류를 먼저 선택해 주세요</p>
+                    </div>
+                  )}
 
                   {/* 개발 전용: 생성 방식 + 모델 오버라이드 */}
-                  {process.env.NODE_ENV === 'development' && (
+                  {process.env.NEXT_PUBLIC_SHOW_DEV_TOOLS === 'true' && (
                   <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
                     <div className="flex items-center gap-1.5">
                       <span className="text-xs text-gray-400">🧪 방식:</span>
@@ -422,9 +434,9 @@ export default function Home() {
           </>
         )}
 
-        {/* ── 3. 생성 중 로딩 (첫 생성 — 이전 결과 없음) ── */}
+        {/* ── 4. 생성 중 로딩 (첫 생성 — 이전 결과 없음) ── */}
         {isGenerating && !hasGeneratedImages && (
-          <SectionBlock sectionRef={resultRef} step="3" title="AI 사진 생성 중">
+          <SectionBlock sectionRef={resultRef} step="4" title="AI 사진 생성 중">
             <GeneratingView />
             <button
               onClick={handleCancel}
@@ -456,9 +468,9 @@ export default function Home() {
           </div>
         )}
 
-        {/* ── 3. 사진 2장 비교·선택 (재생성 중에도 이전 결과 유지) ── */}
+        {/* ── 4. 사진 2장 비교·선택 (재생성 중에도 이전 결과 유지) ── */}
         {hasGeneratedImages && (
-          <SectionBlock sectionRef={resultRef} step="3" title="마음에 드는 사진 선택">
+          <SectionBlock sectionRef={resultRef} step="4" title="마음에 드는 사진 선택">
             {isGenerating && (
               <div className="mb-3 flex items-center justify-between bg-orange-50 border border-orange-200 rounded-xl px-4 py-3">
                 <span className="text-sm text-orange-600">새 이미지를 생성 중입니다…</span>
@@ -489,9 +501,9 @@ export default function Home() {
           </SectionBlock>
         )}
 
-        {/* ── 4. 선택 결과 확인 + PNG 다운로드 ── */}
+        {/* ── 5. 선택 결과 확인 + PNG 다운로드 ── */}
         {selectedImage && selectedTemplate && (
-          <SectionBlock sectionRef={downloadRef} step="4" title="생성 완료">
+          <SectionBlock sectionRef={downloadRef} step="5" title="생성 완료">
             <PhotoResult
               originalImage={uploadedImage!}
               resultImage={selectedImage}
@@ -859,8 +871,8 @@ export default function Home() {
 
 const WORKSPACE_STEPS = [
   { id: 1, label: '사진 업로드' },
-  { id: 2, label: '스타일 선택' },
-  { id: 3, label: '보존 강도 선택' },
+  { id: 2, label: '음식 종류 선택' },
+  { id: 3, label: '스타일 선택' },
   { id: 4, label: '이미지 생성' },
   { id: 5, label: '결과 확인' },
 ] as const;
@@ -1037,55 +1049,6 @@ function VariantInfoCard({ template }: { template: PhotoTemplate }) {
               </div>
             </div>
           ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ── 선택사항 카테고리 섹션 ──────────────────────────────────────── */
-
-function CollapsibleCategorySection({
-  selected,
-  onSelect,
-}: {
-  selected: string | null;
-  onSelect: (cat: string) => void;
-}) {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-4 py-3 text-left"
-        aria-expanded={open}
-      >
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="shrink-0 text-xs bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full font-medium">
-            선택사항
-          </span>
-          <span className="text-sm font-medium text-gray-700">음식 카테고리</span>
-          {selected && (
-            <span className="text-xs text-orange-500 font-medium truncate">{selected}</span>
-          )}
-        </div>
-        <span
-          className="text-gray-400 text-lg leading-none shrink-0 ml-2 transition-transform duration-200"
-          style={{ transform: open ? 'rotate(90deg)' : 'rotate(0deg)' }}
-          aria-hidden
-        >
-          ›
-        </span>
-      </button>
-
-      {open && (
-        <div className="px-4 pb-4 border-t border-gray-100">
-          <p className="text-xs text-gray-400 py-2">
-            선택하면 AI가 해당 음식에 더 잘 맞는 결과를 만들어 드려요.
-            없으면 건너뛰어도 됩니다.
-          </p>
-          <CategorySelect selected={selected} onSelect={onSelect} />
         </div>
       )}
     </div>

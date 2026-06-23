@@ -97,7 +97,7 @@ Do NOT include ANY text, letters, numbers, characters, captions, labels, logos, 
 // ─────────────────────────────────────────────────────────────────────────────
 // 메뉴별 질감 보존 (공통)
 // ─────────────────────────────────────────────────────────────────────────────
-const FRIED_FOOD_CATEGORIES = new Set(['후라이드 치킨', '양념치킨', '닭강정', '돈가스']);
+const FRIED_FOOD_CATEGORIES = new Set(['후라이드 치킨', '양념치킨', '닭강정', '돈가스', '치킨·버거·피자류']);
 
 function getMenuTextureNote(category: string | null): string | null {
   if (!category) return null;
@@ -111,7 +111,7 @@ function getMenuTextureNote(category: string | null): string | null {
 - Do not redraw the fried pieces into smooth or uniform shapes.`;
   }
 
-  if (category === '떡볶이') {
+  if (category === '떡볶이' || category === '떡볶이·분식류') {
     return `TTEOKBOKKI / SPICY FOOD PRESERVATION:
 - Preserve glossy red sauce, original rice cake shapes, sauce thickness, steam, and the spicy appetizing color.
 - Do not turn it into a different noodle dish, stew, or unrelated food.
@@ -119,7 +119,7 @@ function getMenuTextureNote(category: string | null): string | null {
 - Maintain the glossy, saucy texture throughout.`;
   }
 
-  if (category === '카페 음료' || category === '디저트') {
+  if (category === '카페 음료' || category === '디저트' || category === '디저트·베이커리') {
     return `CAFE DRINK / DESSERT PRESERVATION:
 - Preserve fresh colors, the original drink or dessert identity, and clean natural presentation.
 - If it is a layered drink, preserve the visible layer structure.
