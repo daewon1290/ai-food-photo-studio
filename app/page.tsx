@@ -976,69 +976,97 @@ function HeroSection({
   onStartPoster: () => void;
 }) {
   return (
-    <div className="space-y-5 pt-2">
-      {/* 메인 카피 */}
+    <div className="space-y-6 pt-2">
+
+      {/* ── 제목 ── */}
       <div className="text-center space-y-1">
         <h2 className="text-2xl font-bold text-gray-900 leading-tight">AI 음식사진 스튜디오</h2>
         <p className="text-sm text-gray-400">무엇을 만들까요?</p>
       </div>
 
-      {/* 기능 선택 카드 2장 */}
+      {/* ── 기능 선택 카드 2장 (텍스트 + 버튼만) ── */}
       <div className="space-y-3">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4 space-y-3">
+          <div>
+            <h3 className="font-bold text-gray-900">📸 AI 음식 사진 만들기</h3>
+            <p className="text-sm text-gray-500 mt-0.5 leading-snug">
+              평범한 음식 사진을 광고 사진처럼 바꿔드려요.
+              스타일만 고르면 AI가 30초 안에 완성해요.
+            </p>
+          </div>
+          <button
+            onClick={onStartAI}
+            className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-3 rounded-xl font-bold text-sm transition-colors"
+          >
+            시작하기 →
+          </button>
+        </div>
 
-        {/* 카드 1: AI 음식 사진 만들기 */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="grid grid-cols-2">
-            {[ONBOARDING_STEPS[0], ONBOARDING_STEPS[3]].map((step) => (
-              <div key={step.image} className="relative aspect-video bg-gray-100">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4 space-y-3">
+          <div>
+            <h3 className="font-bold text-gray-900">✏️ 홍보 포스터 만들기</h3>
+            <p className="text-sm text-gray-500 mt-0.5 leading-snug">
+              이미 있는 음식 사진에 메뉴명·가격·홍보 문구를 얹어
+              인스타·당근·스마트플레이스용 포스터를 만들어요.
+            </p>
+          </div>
+          <button
+            onClick={onStartPoster}
+            className="w-full bg-white border-2 border-orange-500 text-orange-600 hover:bg-orange-50 active:bg-orange-100 py-3 rounded-xl font-bold text-sm transition-colors"
+          >
+            시작하기 →
+          </button>
+        </div>
+      </div>
+
+      {/* ── AI 사진 4컷 온보딩 ── */}
+      <div>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex-1 h-px bg-gray-100" />
+          <span className="text-xs text-gray-300 shrink-0">AI 사진은 이렇게 작동해요</span>
+          <div className="flex-1 h-px bg-gray-100" />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {ONBOARDING_STEPS.map((step, i) => (
+            <div
+              key={step.image}
+              className="bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm"
+            >
+              <div className="relative aspect-video">
                 <Image src={step.image} alt={step.title} fill className="object-cover" sizes="50vw" />
               </div>
-            ))}
-          </div>
-          <div className="px-4 py-4 space-y-3">
-            <div>
-              <h3 className="font-bold text-gray-900">📸 AI 음식 사진 만들기</h3>
-              <p className="text-sm text-gray-500 mt-0.5 leading-snug">
-                평범한 음식 사진을 광고 사진처럼 바꿔드려요.
-                스타일만 고르면 AI가 30초 안에 완성해요.
-              </p>
-            </div>
-            <button
-              onClick={onStartAI}
-              className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-3 rounded-xl font-bold text-sm transition-colors"
-            >
-              시작하기 →
-            </button>
-          </div>
-        </div>
-
-        {/* 카드 2: 홍보 포스터 만들기 */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="grid grid-cols-2">
-            {['/poster-examples/poster-burger-ingredients.png', '/poster-examples/poster-kimchi-humor.png'].map((src) => (
-              <div key={src} className="relative aspect-video bg-gray-100">
-                <Image src={src} alt="홍보 포스터 예시" fill className="object-cover" sizes="50vw" />
+              <div className="px-3 py-2 sm:px-4 sm:py-3">
+                <p className="text-xs font-bold text-orange-400 mb-0.5">
+                  {String(i + 1).padStart(2, '0')}
+                </p>
+                <h3 className="text-sm font-bold text-gray-800">{step.title}</h3>
+                <p className="hidden sm:block text-xs text-gray-500 mt-1 leading-relaxed">{step.desc}</p>
               </div>
-            ))}
-          </div>
-          <div className="px-4 py-4 space-y-3">
-            <div>
-              <h3 className="font-bold text-gray-900">✏️ 홍보 포스터 만들기</h3>
-              <p className="text-sm text-gray-500 mt-0.5 leading-snug">
-                이미 있는 음식 사진에 메뉴명·가격·홍보 문구를 얹어
-                인스타·당근·스마트플레이스용 포스터를 만들어요.
-              </p>
             </div>
-            <button
-              onClick={onStartPoster}
-              className="w-full bg-white border-2 border-orange-500 text-orange-600 hover:bg-orange-50 active:bg-orange-100 py-3 rounded-xl font-bold text-sm transition-colors"
-            >
-              시작하기 →
-            </button>
-          </div>
+          ))}
         </div>
-
       </div>
+
+      {/* ── 홍보 포스터 예시 (잘림 없이 원본 비율 유지) ── */}
+      <div>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex-1 h-px bg-gray-100" />
+          <span className="text-xs text-gray-300 shrink-0">홍보 포스터 예시</span>
+          <div className="flex-1 h-px bg-gray-100" />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            '/poster-examples/poster-burger-ingredients.png',
+            '/poster-examples/poster-kimchi-humor.png',
+          ].map((src) => (
+            <div key={src} className="bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={src} alt="홍보 포스터 예시" className="w-full h-auto block" />
+            </div>
+          ))}
+        </div>
+      </div>
+
     </div>
   );
 }
