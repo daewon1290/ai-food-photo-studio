@@ -1,7 +1,11 @@
 'use client';
 
-import { Fragment, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import type { User } from '@supabase/supabase-js';
 import Image from 'next/image';
+import { createClient } from '@/lib/supabase/client';
+import AuthModal from '@/components/AuthModal';
+import CreditBadge from '@/components/CreditBadge';
 import { PhotoTemplate } from '@/lib/photoTemplates';
 import { buildGenerationPrompt, buildPreservePrompt, buildCompositePrompt } from '@/lib/buildPrompt';
 import { PreservationMode, DEFAULT_PRESERVATION } from '@/lib/preservationModes';
@@ -21,6 +25,49 @@ import PhotoResult from '@/components/PhotoResult';
 // import CaptionView from '@/components/CaptionView';
 
 export default function Home() {
+  // ── 인증 / 크레딧 상태 ───────────────────────────────────────────
+  const [user, setUser] = useState<User | null>(null);
+  const [credits, setCredits] = useState<number | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  const fetchCredits = useCallback(async () => {
+    const res = await fetch('/api/credits');
+    const json = await res.json() as { balance?: number; error?: string; debug?: unknown };
+    console.log('[fetchCredits] status:', res.status, 'body:', json);
+    if (res.ok && typeof json.balance === 'number') {
+      setCredits(json.balance);
+    } else {
+      console.warn('[fetchCredits] 크레딧 미반영. status:', res.status, 'body:', json);
+    }
+  }, []);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    // 초기 세션 확인
+    supabase.auth.getUser().then(({ data: { user: u } }) => {
+      setUser(u);
+      if (u) fetchCredits();
+    });
+
+    // 로그인/로그아웃 이벤트 구독
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchCredits();
+      } else {
+        setCredits(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [fetchCredits]);
+
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+  };
+
   // ── 1차 MVP 상태 ──────────────────────────────────────────────────
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -328,10 +375,16 @@ export default function Home() {
       <header className="bg-white border-b border-orange-100 sticky top-0 z-10 shadow-sm">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <span className="text-xl shrink-0">🍽️</span>
-          <div>
+          <div className="flex-1 min-w-0">
             <h1 className="text-sm font-bold text-gray-900 leading-tight">AI 음식사진 스튜디오</h1>
             <p className="text-xs text-orange-400 leading-tight font-medium">대충 찍어도 광고사진처럼</p>
           </div>
+          <CreditBadge
+            credits={credits}
+            isLoggedIn={!!user}
+            onLoginClick={() => setShowAuthModal(true)}
+            onLogoutClick={handleLogout}
+          />
         </div>
       </header>
 
@@ -395,17 +448,46 @@ export default function Home() {
 
               {selectedTemplate && !isGenerating && !hasGeneratedImages && (
                 <>
-                  {selectedCategory ? (
+                  {/* ── 비로그인: 로그인 유도 ── */}
+                  {!user && (
                     <button
-                      onClick={handleGenerate}
+                      onClick={() => setShowAuthModal(true)}
                       className="mt-4 w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-4 rounded-2xl font-bold text-base transition-colors shadow-sm"
                     >
-                      ✨ AI 사진 2장 생성하기
+                      로그인하고 AI 사진 만들기 →
                     </button>
-                  ) : (
-                    <div className="mt-4 bg-orange-50 border border-orange-200 rounded-xl p-4 text-center">
-                      <p className="text-sm text-orange-600 font-medium">위 2단계에서 음식 종류를 먼저 선택해 주세요</p>
+                  )}
+
+                  {/* ── 로그인 + 크레딧 없음 ── */}
+                  {user && credits === 0 && (
+                    <div className="mt-4 bg-orange-50 border border-orange-200 rounded-xl p-4 text-center space-y-2">
+                      <p className="text-sm text-orange-700 font-semibold">크레딧이 없어요</p>
+                      <p className="text-xs text-orange-500 leading-relaxed">
+                        크레딧을 충전하면 AI 사진을 생성할 수 있어요.
+                      </p>
+                      <button
+                        disabled
+                        className="text-xs text-gray-400 font-medium cursor-not-allowed"
+                      >
+                        크레딧 충전하기 (준비 중)
+                      </button>
                     </div>
+                  )}
+
+                  {/* ── 로그인 + 크레딧 있음(또는 로딩 중) ── */}
+                  {user && credits !== 0 && (
+                    selectedCategory ? (
+                      <button
+                        onClick={handleGenerate}
+                        className="mt-4 w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-4 rounded-2xl font-bold text-base transition-colors shadow-sm"
+                      >
+                        ✨ AI 사진 2장 생성하기
+                      </button>
+                    ) : (
+                      <div className="mt-4 bg-orange-50 border border-orange-200 rounded-xl p-4 text-center">
+                        <p className="text-sm text-orange-600 font-medium">위 2단계에서 음식 종류를 먼저 선택해 주세요</p>
+                      </div>
+                    )
                   )}
 
                   {/* 개발 전용: 생성 방식 + 모델 오버라이드 */}
@@ -875,6 +957,9 @@ export default function Home() {
         )}
 
       </div>
+
+      {/* ── 로그인 모달 ── */}
+      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
 
       {/* ── 모바일 스티키 다운로드 바 ── */}
       {appMode === 'ai-studio' && selectedImage && selectedTemplate && (
