@@ -53,7 +53,8 @@ async function main() {
         n: 1,
       });
 
-      const imageData = response.data[0];
+      const imageData = response.data?.[0];
+      if (!imageData) throw new Error('응답에 이미지 데이터 없음');
 
       if (imageData.b64_json) {
         fs.writeFileSync(outPath, Buffer.from(imageData.b64_json, 'base64'));
