@@ -1,7 +1,8 @@
 # AI 음식사진 스튜디오 — MVP 서비스 설계
 
 작성일: 2026-06-28  
-상태: 설계 단계 (구현 전)
+최종 업데이트: 2026-06-30  
+상태: 1차 구현 완료 (결제 PG 연동 전 단계)
 
 ---
 
@@ -28,16 +29,18 @@
 
 ## 2. 회원가입/로그인 플로우
 
-### 2-1. 인증 방식 (MVP)
+### 2-1. 인증 방식 (MVP) — ✅ 구현 완료
 
-MVP에서는 **NextAuth.js v5** 기반으로 구현한다.  
-소셜 로그인만 지원하여 비밀번호 관리 부담을 없앤다.
+MVP에서는 **Supabase Auth** 기반으로 구현했다.  
+초기 설계(NextAuth.js + Google OAuth)에서 변경: 설정 간소화와 크레딧 DB 연동 편의성 우선.
 
-| 순서 | 방식 | 이유 |
+| 순서 | 방식 | 상태 |
 |------|------|------|
-| 1순위 | Google OAuth | 국내외 범용, 설정 간단 |
-| 2순위 | Kakao OAuth | 국내 사용자 친화적 |
-| 나중 | 이메일/비밀번호 | MVP 이후 추가 가능 |
+| 1순위 | 이메일+비밀번호 | ✅ 구현 완료 |
+| 나중 | Google OAuth | 미구현 (Supabase OAuth 설정 예정) |
+| 나중 | Kakao OAuth | 미구현 |
+
+> Magic Link(signInWithOtp) 시도 → Supabase 500 에러로 실패 → 이메일+비밀번호로 전환.
 
 ### 2-2. 회원가입 완료 후 처리
 
@@ -82,18 +85,22 @@ MVP에서는 **NextAuth.js v5** 기반으로 구현한다.
 | 서버 내부 오류 | 차감 없음 |
 | 네트워크 단절 | 차감 없음 |
 
-### 4-3. 차감 구현 순서 (나중에 구현 시 참고)
+### 4-3. 차감 구현 — ✅ 구현 완료
 
 ```
 1. 생성 요청 수신
-2. 유저 인증 확인
-3. 크레딧 잔액 확인 (잔액 < 1이면 즉시 403 반환)
+2. Supabase Auth getUser() → 미인증 시 401 반환
+3. credits 테이블 조회 → balance < 1이면 402 반환
 4. OpenAI API 호출
-5. 성공 응답 수신 후 → DB 트랜잭션으로 크레딧 차감 + 기록
+5. 성공 응답 수신 후 → deduct_credit RPC 호출 (SECURITY DEFINER)
+   - UPDATE credits SET balance = balance - 1 WHERE balance > 0 (race condition 방지)
+   - credit_transactions에 type='use', amount=-1 INSERT
 6. 실패 시 → 차감 없이 에러 반환
 ```
 
-트랜잭션 안에서 차감과 기록을 동시에 처리하여 부분 실패를 방지한다.
+- HTTP 상태코드: 미인증 401, 크레딧 부족 402
+- RPC를 SECURITY DEFINER로 구현하여 service role key 없이 안전한 서버사이드 차감 처리
+- 적용 라우트: `/api/generate-photo`, `/api/generate-poster`
 
 ---
 
@@ -123,16 +130,17 @@ MVP에서는 자동 지급 대신 **수동 지급**으로 운영한다.
 
 ## 6. 결제 상품 구조
 
-### 6-1. 크레딧 패키지
+### 6-1. 크레딧 패키지 — ✅ /credits 페이지 구현 완료 (결제 미연동)
 
-| 패키지 | 크레딧 | 가격 (원) | 단가 | 비고 |
-|--------|--------|-----------|------|------|
-| 기본 | 1장 | 1,500 | 1,500원/장 | 낱장 구매 |
-| 소형 | 3장 | 3,900 | 1,300원/장 | 13% 할인 |
-| 중형 | 5장 | 5,900 | 1,180원/장 | 21% 할인 |
-| 대형 | 10장 | 9,900 | 990원/장 | 34% 할인 |
+| 패키지 | 크레딧 | 가격 (원) | 장당 체감가 | 추천 배지 |
+|--------|--------|-----------|-------------|-----------|
+| 1장 이용권 | 1장 | 1,500 | 1,500원/장 | 가볍게 테스트 |
+| 3장 이용권 | 3장 | 2,900 | ~967원/장 | 첫 사용 추천 ⭐ |
+| 5장 이용권 | 5장 | 4,500 | 900원/장 | 자영업자 추천 |
+| 10장 이용권 | 10장 | 8,900 | 890원/장 | 장당 최저가 |
 
-> 가격은 시장 반응에 따라 조정 가능. DB의 `products` 테이블에서 관리하여 코드 수정 없이 변경 가능하게 설계.
+> `/credits` 페이지에 상품 카드 구현 완료. 결제 버튼 클릭 시 "결제 연동 준비중" 토스트 표시.  
+> 실제 결제 연동 시 가격은 시장 반응에 따라 조정 가능.
 
 ### 6-2. 결제 흐름 (PG 연동 예정)
 
@@ -238,20 +246,21 @@ CREATE TABLE generation_requests (
 
 ## 8. API 라우트 초안
 
-### 8-1. 인증
+### 8-1. 인증 — ✅ Supabase Auth로 구현
 
-| 메서드 | 경로 | 설명 |
-|--------|------|------|
-| GET/POST | `/api/auth/[...nextauth]` | NextAuth 핸들러 |
+| 메서드 | 경로 | 설명 | 상태 |
+|--------|------|------|------|
+| — | Supabase Auth | 이메일+비밀번호 signUp/signInWithPassword | ✅ 완료 |
+| GET | `/auth/callback` | OAuth 콜백 (소셜 로그인 예정) | ✅ 라우트 존재 |
 
-### 8-2. 크레딧
+### 8-2. 크레딧 — ✅ 구현 완료
 
-| 메서드 | 경로 | 설명 |
-|--------|------|------|
-| GET | `/api/credits` | 내 크레딧 잔액 조회 |
-| GET | `/api/credits/transactions` | 크레딧 사용 내역 |
+| 메서드 | 경로 | 설명 | 상태 |
+|--------|------|------|------|
+| GET | `/api/credits` | 내 크레딧 잔액 조회 | ✅ 완료 |
+| — | `deduct_credit` RPC | 생성 성공 시 차감 (SECURITY DEFINER) | ✅ 완료 |
 
-### 8-3. 결제 (PG 연동 시 구현)
+### 8-3. 결제 (PG 연동 시 구현) — ⏳ 미구현
 
 | 메서드 | 경로 | 설명 |
 |--------|------|------|
@@ -260,25 +269,30 @@ CREATE TABLE generation_requests (
 | POST | `/api/payments/confirm` | 결제 성공 확인 및 크레딧 충전 |
 | POST | `/api/payments/webhook` | PG사 웹훅 수신 (이중 안전장치) |
 
-### 8-4. 기존 생성 API (수정 예정)
+### 8-4. 생성 API — ✅ 인증 + 크레딧 차감 적용 완료
 
-| 메서드 | 경로 | 추가 처리 |
-|--------|------|-----------|
-| POST | `/api/generate-photo` | 인증 + 크레딧 확인 + 차감 로직 추가 예정 |
-| POST | `/api/generate-poster` | 인증 + 크레딧 확인 + 차감 로직 추가 예정 |
+| 메서드 | 경로 | 처리 | 상태 |
+|--------|------|------|------|
+| POST | `/api/generate-photo` | 인증(401) + 크레딧(402) + OpenAI + deductCredit | ✅ 완료 |
+| POST | `/api/generate-poster` | 인증(401) + 크레딧(402) + OpenAI + deductCredit | ✅ 완료 |
 
 ---
 
-## 9. MVP에서 먼저 구현할 범위
+## 9. MVP 구현 현황
 
-1. **NextAuth 설정** — Google OAuth 소셜 로그인
-2. **DB 연결** — Supabase (PostgreSQL) 또는 PlanetScale
-3. **users / credits / credit_transactions 테이블** 생성 및 마이그레이션
-4. **회원가입 시 무료 크레딧 1개 자동 지급** — NextAuth `signIn` 콜백 처리
-5. **크레딧 잔액 표시 UI** — 헤더 또는 생성 페이지 상단
-6. **크레딧 없을 때 생성 버튼 비활성화 + 충전 안내 모달**
-7. **생성 성공 시 크레딧 차감** — 기존 API 라우트에 미들웨어 추가
-8. **시스템 오류 시 크레딧 미차감** 보장
+| 항목 | 상태 |
+|------|------|
+| Supabase 프로젝트 설정 및 env 구성 | ✅ 완료 |
+| credits / credit_transactions 테이블 생성 | ✅ 완료 |
+| 이메일+비밀번호 회원가입/로그인 | ✅ 완료 |
+| 회원가입 시 무료 크레딧 1개 자동 지급 | ✅ 완료 (DB Trigger) |
+| 크레딧 잔액 표시 UI (헤더 CreditBadge) | ✅ 완료 |
+| 크레딧 없을 때 생성 버튼 비활성화 + 충전 안내 | ✅ 완료 |
+| 생성 성공 시 크레딧 차감 (deduct_credit RPC) | ✅ 완료 |
+| 시스템 오류 시 크레딧 미차감 보장 | ✅ 완료 |
+| /credits 충전 페이지 (상품 카드) | ✅ 완료 (결제 미연동) |
+| Google OAuth | ⏳ 미구현 |
+| 실제 결제 PG 연동 | ⏳ 미구현 |
 
 ---
 
@@ -347,12 +361,12 @@ OPENAI_API_KEY=
 
 ---
 
-## 13. 기술 스택 결정 사항 (예정)
+## 13. 기술 스택 결정 사항
 
-| 항목 | 선택지 | 추천 |
-|------|--------|------|
-| 인증 | NextAuth v5 | NextAuth v5 (App Router 지원) |
-| DB | Supabase / PlanetScale / Neon | Supabase (Postgres + 관리 편의) |
-| ORM | Prisma / Drizzle | Prisma (타입 안전, 마이그레이션) |
-| 결제 PG | Toss Payments / PortOne | Toss Payments (국내 문서 우수) |
-| 배포 | Vercel | Vercel (Next.js 최적화) |
+| 항목 | 선택 | 상태 |
+|------|------|------|
+| 인증 | Supabase Auth (이메일+비밀번호) | ✅ 적용 완료 |
+| DB | Supabase (PostgreSQL) | ✅ 적용 완료 |
+| ORM | Supabase JS SDK (직접 쿼리) | ✅ 적용 완료 |
+| 결제 PG | Toss Payments / PortOne 비교 예정 | ⏳ 미결정 |
+| 배포 | Vercel (Next.js 최적화) | ⏳ 미배포 |
