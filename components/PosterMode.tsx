@@ -7,6 +7,7 @@ import { POSTER_RATIO_OPTIONS, PosterRatioOption } from '@/lib/posterLayouts';
 interface Props {
   initialImage?: string;
   onBack: () => void;
+  onCreditUsed?: () => void;
 }
 
 /* ── 스타일 옵션 ──────────────────────────────────────────────────── */
@@ -84,7 +85,7 @@ const LOADING_STEPS = [
 
 /* ── 메인 컴포넌트 ──────────────────────────────────────────────────── */
 
-export default function PosterMode({ initialImage, onBack }: Props) {
+export default function PosterMode({ initialImage, onBack, onCreditUsed }: Props) {
   const [posterImage, setPosterImage] = useState<string | null>(initialImage ?? null);
   const [selectedRatio, setSelectedRatio] = useState<PosterRatioOption>(POSTER_RATIO_OPTIONS[0]);
   const [menuName, setMenuName] = useState('');
@@ -136,9 +137,16 @@ export default function PosterMode({ initialImage, onBack }: Props) {
       const response = await fetch('/api/generate-poster', { method: 'POST', body: fd });
       const data = await response.json();
       if (!response.ok || data.error) {
-        setErrorMessage(data.error ?? '생성에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+        if (response.status === 401) {
+          setErrorMessage('로그인이 필요합니다. 페이지를 새로고침 후 다시 시도해 주세요.');
+        } else if (response.status === 402) {
+          setErrorMessage('크레딧이 부족합니다. 충전 후 다시 시도해 주세요.');
+        } else {
+          setErrorMessage(data.error ?? '생성에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+        }
       } else {
         setGeneratedImageUrl(data.imageUrl);
+        onCreditUsed?.();
         if (data.mode && data.model) {
           setGenerationInfo({ mode: data.mode, model: data.model });
           console.log(`[generate-poster] result mode=${data.mode} model=${data.model}`);

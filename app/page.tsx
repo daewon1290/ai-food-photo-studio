@@ -253,14 +253,24 @@ export default function Home() {
         signal: controller.signal,
       });
 
-      const data: { images?: string[]; error?: string } = await res.json();
+      const data: { images?: string[]; error?: string; errorKo?: string } = await res.json();
 
+      if (res.status === 401) {
+        setShowAuthModal(true);
+        return;
+      }
+      if (res.status === 402) {
+        setGenerateError('크레딧이 부족합니다. 충전 후 다시 시도해 주세요.');
+        fetchCredits();
+        return;
+      }
       if (!res.ok || !data.images) {
         setGenerateError(data.error ?? '이미지 생성에 실패했습니다. 다시 시도해 주세요.');
         return;
       }
 
       setGeneratedImages(data.images);
+      fetchCredits();
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') {
         setIsCancelled(true);
@@ -403,6 +413,7 @@ export default function Home() {
           <PosterMode
             initialImage={posterBaseImage ?? undefined}
             onBack={() => { setAppMode('landing'); setPosterBaseImage(null); }}
+            onCreditUsed={fetchCredits}
           />
         )}
 

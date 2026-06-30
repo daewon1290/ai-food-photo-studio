@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { createClient } from '@/lib/supabase/server';
+import { checkCredits, deductCredit } from '@/lib/supabase/credits';
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024;
 
@@ -118,6 +120,20 @@ REQUIREMENTS:
 }
 
 export async function POST(req: NextRequest) {
+  // ── 0. 인증 + 크레딧 확인 ────────────────────────────────────────
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
+  }
+  const balance = await checkCredits(supabase, user.id);
+  if (balance < 1) {
+    return NextResponse.json(
+      { error: 'INSUFFICIENT_CREDITS', errorKo: '크레딧이 부족합니다.' },
+      { status: 402 },
+    );
+  }
+
   if (!process.env.OPENAI_API_KEY) {
     return NextResponse.json(
       { error: 'API 키가 설정되지 않았습니다. 관리자에게 문의하세요.' },
@@ -231,7 +247,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({ imageUrl, mode: GENERATION_MODE, model: POSTER_IMAGE_MODEL });
+    // ── 생성 성공 → 크레딧 1개 차감 ─────────────────────────────────
+    const deductResult = await deductCredit(supabase, user.id, `poster-${Date.now()}`);
+    console.log('[generate-poster] credit deduct:', deductResult);
+
+    return NextResponse.json({ imageUrl, mode: GENERATION_MODE, model: POSTER_IMAGE_MODEL, creditBalance: deductResult.balance });
   } catch (err: unknown) {
     console.error(
       `[generate-poster] mode=${GENERATION_MODE} model=${POSTER_IMAGE_MODEL} OpenAI error:`,
