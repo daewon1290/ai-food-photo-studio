@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import ImageUpload from '@/components/ImageUpload';
 import { POSTER_RATIO_OPTIONS, PosterRatioOption } from '@/lib/posterLayouts';
 
@@ -372,8 +373,18 @@ export default function PosterMode({ initialImage, onBack, onCreditUsed }: Props
         )}
 
         {errorMessage && (
-          <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+          <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 space-y-2">
             <p className="text-sm text-red-600 text-center">{errorMessage}</p>
+            {errorMessage.includes('크레딧') && (
+              <p className="text-center">
+                <Link
+                  href="/credits"
+                  className="inline-block text-xs font-semibold text-orange-500 hover:text-orange-600 border border-orange-300 bg-orange-50 hover:bg-orange-100 rounded-lg px-3 py-1.5 transition-colors"
+                >
+                  충전하기 →
+                </Link>
+              </p>
+            )}
           </div>
         )}
 

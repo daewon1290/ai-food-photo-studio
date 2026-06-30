@@ -3,6 +3,7 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import Image from 'next/image';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import AuthModal from '@/components/AuthModal';
 import CreditBadge from '@/components/CreditBadge';
@@ -405,6 +406,8 @@ export default function Home() {
           <HeroSection
             onStartAI={() => setAppMode('ai-studio')}
             onStartPoster={() => setAppMode('poster')}
+            user={user}
+            credits={credits}
           />
         )}
 
@@ -471,17 +474,17 @@ export default function Home() {
 
                   {/* ── 로그인 + 크레딧 없음 ── */}
                   {user && credits === 0 && (
-                    <div className="mt-4 bg-orange-50 border border-orange-200 rounded-xl p-4 text-center space-y-2">
+                    <div className="mt-4 bg-orange-50 border border-orange-200 rounded-xl p-4 text-center space-y-3">
                       <p className="text-sm text-orange-700 font-semibold">크레딧이 없어요</p>
                       <p className="text-xs text-orange-500 leading-relaxed">
                         크레딧을 충전하면 AI 사진을 생성할 수 있어요.
                       </p>
-                      <button
-                        disabled
-                        className="text-xs text-gray-400 font-medium cursor-not-allowed"
+                      <Link
+                        href="/credits"
+                        className="inline-block text-xs font-semibold bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors"
                       >
-                        크레딧 충전하기 (준비 중)
-                      </button>
+                        충전하기 →
+                      </Link>
                     </div>
                   )}
 
@@ -561,9 +564,18 @@ export default function Home() {
           <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-3">
             <p className="text-sm text-red-700 font-medium">생성 실패</p>
             <p className="text-xs text-red-600">{generateError}</p>
-            <button onClick={handleGenerate} className="text-xs text-red-600 underline">
-              다시 시도하기
-            </button>
+            {credits === 0 ? (
+              <Link
+                href="/credits"
+                className="inline-block text-xs font-semibold text-orange-500 hover:text-orange-600 border border-orange-300 bg-orange-50 hover:bg-orange-100 rounded-lg px-3 py-1.5 transition-colors"
+              >
+                충전하기 →
+              </Link>
+            ) : (
+              <button onClick={handleGenerate} className="text-xs text-red-600 underline">
+                다시 시도하기
+              </button>
+            )}
           </div>
         )}
 
@@ -1067,10 +1079,15 @@ const ONBOARDING_STEPS = [
 function HeroSection({
   onStartAI,
   onStartPoster,
+  user,
+  credits,
 }: {
   onStartAI: () => void;
   onStartPoster: () => void;
+  user: import('@supabase/supabase-js').User | null;
+  credits: number | null;
 }) {
+  const noCredits = !!user && credits === 0;
   return (
     <div className="space-y-4 pt-2">
 
@@ -1128,12 +1145,27 @@ function HeroSection({
 
         {/* CTA */}
         <div className="px-4 pb-5">
-          <button
-            onClick={onStartAI}
-            className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-3 rounded-xl font-bold text-sm transition-colors"
-          >
-            음식사진 만들기 시작 →
-          </button>
+          {noCredits ? (
+            <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 text-center space-y-2">
+              <p className="text-sm text-orange-700 font-semibold">크레딧이 부족합니다.</p>
+              <p className="text-xs text-orange-500 leading-relaxed">
+                이미지를 만들려면 크레딧을 충전해 주세요.
+              </p>
+              <Link
+                href="/credits"
+                className="inline-block text-xs font-semibold bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                충전하기 →
+              </Link>
+            </div>
+          ) : (
+            <button
+              onClick={onStartAI}
+              className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-3 rounded-xl font-bold text-sm transition-colors"
+            >
+              음식사진 만들기 시작 →
+            </button>
+          )}
         </div>
 
       </div>
@@ -1210,12 +1242,27 @@ function HeroSection({
 
         {/* CTA */}
         <div className="px-4 pt-2 pb-5">
-          <button
-            onClick={onStartPoster}
-            className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-3 rounded-xl font-bold text-sm transition-colors"
-          >
-            포스터 만들기 시작 →
-          </button>
+          {noCredits ? (
+            <div className="bg-orange-50 border border-amber-200 rounded-xl p-4 text-center space-y-2">
+              <p className="text-sm text-orange-700 font-semibold">크레딧이 부족합니다.</p>
+              <p className="text-xs text-orange-500 leading-relaxed">
+                이미지를 만들려면 크레딧을 충전해 주세요.
+              </p>
+              <Link
+                href="/credits"
+                className="inline-block text-xs font-semibold bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                충전하기 →
+              </Link>
+            </div>
+          ) : (
+            <button
+              onClick={onStartPoster}
+              className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-3 rounded-xl font-bold text-sm transition-colors"
+            >
+              포스터 만들기 시작 →
+            </button>
+          )}
         </div>
 
       </div>
