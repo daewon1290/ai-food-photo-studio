@@ -15,6 +15,7 @@ export default function CreditsPage() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null)
   const [balance, setBalance] = useState<number | null>(null)
   const [toast, setToast] = useState<string | null>(null)
+  const [purchasing, setPurchasing] = useState<number | null>(null)
 
   const fetchBalance = useCallback(async () => {
     const res = await fetch('/api/credits')
@@ -35,6 +36,40 @@ export default function CreditsPage() {
   const showToast = (msg: string) => {
     setToast(msg)
     setTimeout(() => setToast(null), 3000)
+  }
+
+  const handlePurchase = async (packageIndex: number) => {
+    setPurchasing(packageIndex)
+    try {
+      const prepareRes = await fetch('/api/payment/prepare', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ packageIndex }),
+      })
+      const prepareJson = await prepareRes.json() as { orderId?: string; credits?: number; error?: string }
+      if (!prepareRes.ok || !prepareJson.orderId) {
+        showToast(prepareJson.error ?? '주문 생성에 실패했습니다.')
+        return
+      }
+
+      const confirmRes = await fetch('/api/payment/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: prepareJson.orderId }),
+      })
+      const confirmJson = await confirmRes.json() as { success?: boolean; balance?: number; error?: string }
+      if (!confirmRes.ok || !confirmJson.success) {
+        showToast(confirmJson.error ?? '결제 처리에 실패했습니다.')
+        return
+      }
+
+      setBalance(confirmJson.balance ?? 0)
+      showToast(`✨ ${prepareJson.credits}크레딧이 충전됐습니다!`)
+    } catch {
+      showToast('네트워크 오류가 발생했습니다.')
+    } finally {
+      setPurchasing(null)
+    }
   }
 
   return (
@@ -123,10 +158,17 @@ export default function CreditsPage() {
 
               {/* 결제 버튼 */}
               <button
-                onClick={() => showToast('결제 기능은 준비 중입니다. 곧 오픈 예정이에요.')}
-                className="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-500 rounded-xl text-sm font-semibold transition-colors"
+                onClick={() => handlePurchase(PACKAGES.indexOf(pkg))}
+                disabled={purchasing !== null}
+                className={`w-full py-3 rounded-xl text-sm font-semibold transition-colors ${
+                  purchasing === PACKAGES.indexOf(pkg)
+                    ? 'bg-orange-100 text-orange-400 cursor-wait'
+                    : purchasing !== null
+                    ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                    : 'bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white'
+                }`}
               >
-                결제 연동 준비중
+                {purchasing === PACKAGES.indexOf(pkg) ? '처리 중...' : `${pkg.price.toLocaleString('ko-KR')}원 충전`}
               </button>
             </div>
           ))}
@@ -151,8 +193,7 @@ export default function CreditsPage() {
         {/* MVP 안내 */}
         <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
           <p className="text-xs text-gray-400 leading-relaxed">
-            현재 MVP 테스트 단계입니다. 결제 기능은 조만간 오픈 예정이에요.
-            크레딧이 필요하시면 운영자에게 문의해 주세요.
+            현재 테스트 모드로 운영 중입니다. 실제 결제는 발생하지 않으며 크레딧만 지급됩니다.
           </p>
         </div>
 
